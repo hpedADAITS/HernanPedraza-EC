@@ -1,6 +1,6 @@
 # HernanPedraza-EC
 
-## Este es el repositorio principal para entorno cliente de ADAITS
+Entorno cliente
 
 En este repositorio se detallan los ejercicios de **entorno cliente**
 para el curso 2025-2026 de DAW.
