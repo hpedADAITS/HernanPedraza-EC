@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <title>Encuesta con Gráfico</title>
@@ -10,11 +9,9 @@
       padding: 30px;
       text-align: center;
     }
-
     .opciones {
       margin: 20px 0;
     }
-
     .barra-container {
       display: flex;
       justify-content: center;
@@ -23,7 +20,6 @@
       margin-top: 30px;
       gap: 20px;
     }
-
     .barra {
       width: 60px;
       color: white;
@@ -32,12 +28,10 @@
       justify-content: center;
       transition: height 0.3s ease;
     }
-
     .etiqueta {
       margin-top: 5px;
       font-weight: bold;
     }
-
     .columna {
       display: flex;
       flex-direction: column;
@@ -45,11 +39,8 @@
     }
   </style>
 </head>
-
 <body>
-
   <h1>¿Cuál es tu color favorito?</h1>
-
   <form id="formEncuesta">
     <div class="opciones">
       <label><input type="radio" name="color" value="Rojo"> Rojo</label><br>
@@ -57,14 +48,10 @@
       <label><input type="radio" name="color" value="Verde"> Verde</label><br>
       <label><input type="radio" name="color" value="Amarillo"> Amarillo</label><br>
     </div>
-
     <button type="submit">Enviar</button>
   </form>
-
   <h2>Resultados:</h2>
   <div class="barra-container" id="grafico"></div>
   <script src="encuesta.js"></script>
-
 </body>
-
 </html>

@@ -2,7 +2,6 @@ function getXPath(element) {
     if (element.id) {
         return `//*[@id="${element.id}"]`;
     }
-
     const parts = [];
     while (element && element.nodeType === Node.ELEMENT_NODE) {
         let index = 1;
@@ -20,11 +19,9 @@ function getXPath(element) {
     }
     return '/' + parts.join('/');
 }
-
 function handleClick(event) {
     event.stopPropagation();
     const xpath = getXPath(event.target);
-
     const output = document.getElementById('xpathConsole');
     if (output) {
         output.textContent = `El xpath es -> ${xpath}`;
@@ -32,15 +29,12 @@ function handleClick(event) {
         alert(`XPath: ${xpath}`);
     }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', handleClick);
-
     const iframe = document.getElementById('myIframe');
     iframe.addEventListener('load', () => {
         try {
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
             iframeDoc.addEventListener('click', function (event) {
                 const xpath = getXPath(event.target);
                 const output = document.getElementById('xpathConsole');
