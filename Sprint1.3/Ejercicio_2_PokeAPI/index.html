@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Ejercicio 2 - PokeAPI</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 20px;
+			}
+			input,
+			button {
+				margin: 5px;
+				padding: 5px;
+			}
+			.resultado {
+				margin-top: 10px;
+			}
+			img {
+				width: 100px;
+			}
+			table {
+				border-collapse: collapse;
+				margin-top: 10px;
+			}
+			table,
+			th,
+			td {
+				border: 1px solid black;
+				padding: 5px;
+			}
+			.modal {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0, 0, 0, 0.5);
+			}
+			.modal-content {
+				background: white;
+				margin: 10% auto;
+				padding: 20px;
+				width: 50%;
+			}
+		</style>
+	</head>
+	<body>
+		<h2>Parte 1: Información Básica del Pokémon</h2>
+		<input id="nombrePokemon" placeholder="Nombre del Pokémon" />
+		<button onclick="buscarPokemon()">Buscar</button>
+		<div id="resultadoBasico" class="resultado"></div>
+		<h2>Parte 2: Comparativa de Pokémon</h2>
+		<input id="pokemon1" placeholder="Pokémon 1" />
+		<input id="pokemon2" placeholder="Pokémon 2" />
+		<button onclick="compararPokemones()">Comparar</button>
+		<div id="resultadoComparacion" class="resultado"></div>
+		<h2>Parte 3: Evoluciones y Habilidades</h2>
+		<input id="pokemonEvo" placeholder="Nombre del Pokémon" />
+		<button onclick="verEvoluciones()">Ver Evoluciones</button>
+		<div id="resultadoEvolucion" class="resultado"></div>
+		<div id="modal" class="modal">
+			<div class="modal-content">
+				<span id="cerrar" style="float: right; cursor: pointer"
+					>&times;</span
+				>
+				<div id="contenidoModal"></div>
+			</div>
+		</div>
+		<script src="parte1_basica.js"></script>
+		<script src="parte2_comparativa.js"></script>
+		<script src="parte3_evoluciones.js"></script>
+		<script>
+			function mostrarModal(html) {
+				const modal = document.getElementById("modal");
+				const contenido = document.getElementById("contenidoModal");
+				contenido.innerHTML = html;
+				modal.style.display = "block";
+			}
+			document.getElementById("cerrar").onclick = () => {
+				document.getElementById("modal").style.display = "none";
+			};
+			async function buscarPokemon() {
+				const nombre = document.getElementById("nombrePokemon").value;
+				const info = await obtenerInfoBasicaPokemon(nombre);
+				if (info) {
+					document.getElementById("resultadoBasico").innerHTML = `
+            <strong>${info.nombre}</strong> (ID: ${info.id})<br>
+            Tipos: ${info.tipos.join(", ")}<br>
+            <img src="${info.imagen}" alt="${info.nombre}">
+        `;
+				}
+			}
+			async function compararPokemones() {
+				const p1 = document.getElementById("pokemon1").value;
+				const p2 = document.getElementById("pokemon2").value;
+				const container = document.getElementById(
+					"resultadoComparacion"
+				);
+				container.innerHTML = "";
+				try {
+					const [res1, res2] = await Promise.all([
+						fetch(
+							`https://pokeapi.co/api/v2/pokemon/${p1.toLowerCase()}`
+						),
+						fetch(
+							`https://pokeapi.co/api/v2/pokemon/${p2.toLowerCase()}`
+						)
+					]);
+					if (!res1.ok || !res2.ok)
+						throw new Error(
+							"Alguno de los Pokémon no fue encontrado"
+						);
+					const [data1, data2] = await Promise.all([
+						res1.json(),
+						res2.json()
+					]);
+					let html =
+						"<table><tr><th>Stat</th><th>" +
+						data1.name +
+						"</th><th>" +
+						data2.name +
+						"</th></tr>";
+					let total1 = 0,
+						total2 = 0;
+					for (let i = 0; i < data1.stats.length; i++) {
+						const stat = data1.stats[i].stat.name;
+						const val1 = data1.stats[i].base_stat;
+						const val2 = data2.stats[i].base_stat;
+						total1 += val1;
+						total2 += val2;
+						html += `<tr><td>${stat}</td><td>${val1}</td><td>${val2}</td></tr>`;
+					}
+					html += `<tr><th>Total</th><th>${total1}</th><th>${total2}</th></tr></table>`;
+					html += `<p>Mejor Pokémon: ${total1 > total2 ? data1.name : total2 > total1 ? data2.name : "Empate"}</p>`;
+					container.innerHTML = html;
+				} catch (e) {
+					container.innerText = e.message;
+				}
+			}
+			async function verEvoluciones() {
+				const nombre = document.getElementById("pokemonEvo").value;
+				const container = document.getElementById("resultadoEvolucion");
+				container.innerHTML = "";
+				try {
+					const detalles = await obtenerCadenaEvolutiva(nombre);
+					detalles.forEach(d => {
+						const btn = document.createElement("button");
+						btn.textContent = d.nombre;
+						btn.onclick = () =>
+							mostrarModal(
+								"Habilidades: " + d.habilidades.join(", ")
+							);
+						container.appendChild(btn);
+					});
+				} catch (e) {
+					container.innerText = e.message;
+				}
+			}
+		</script>
+	</body>
+</html>
