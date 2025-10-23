@@ -1,8 +1,8 @@
 .barra {
-  width: 60px;
-  color: white;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  transition: height 0.3s ease;
+	width: 60px;
+	color: white;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	transition: height 0.3s ease;
 }

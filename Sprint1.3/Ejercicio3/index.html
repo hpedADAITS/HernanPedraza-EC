@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Party Finder</title>
+		<link rel="stylesheet" href="styles.css" />
+		<script src="scripts.js"></script>
+	</head>
+
+	<body>
+		<div class="form-container">
+			<h2>Crear Party</h2>
+			<form id="partyForm">
+				<div class="input-group">
+					<select id="partySize" required>
+						<option value="" disabled selected></option>
+						<option value="3">3</option>
+						<option value="5">5</option>
+						<option value="8">8</option>
+					</select>
+					<label>Party Size</label>
+				</div>
+
+				<div class="input-group">
+					<input
+						type="text"
+						id="creatorId"
+						placeholder=" "
+						required
+					/>
+					<label>Creator ID</label>
+				</div>
+
+				<div class="input-group">
+					<input
+						type="number"
+						id="levelCap"
+						min="1"
+						placeholder=" "
+						required
+					/>
+					<label>Level Cap</label>
+				</div>
+
+				<div class="input-group">
+					<input
+						type="number"
+						id="ilvlCap"
+						min="1"
+						placeholder=" "
+						required
+					/>
+					<label>Item Level Cap</label>
+				</div>
+
+				<div class="input-group">
+					<select id="partyRole" required>
+						<option value="" disabled selected></option>
+						<option value="TANK">TANK</option>
+						<option value="HEALER">HEALER</option>
+						<option value="DAMAGE">DAMAGE</option>
+						<option value="SUPPORT">SUPPORT</option>
+					</select>
+					<label>Party Role</label>
+				</div>
+
+				<div class="input-group">
+					<input type="datetime-local" id="plannedStart" required />
+					<label>Planned Start</label>
+				</div>
+
+				<div class="error" id="formError"></div>
+
+				<button type="submit">Crear Party</button>
+			</form>
+		</div>
+
+		<div class="party-list" id="partyList">
+			<h3 class="party-list-title">Parties Creadas</h3>
+		</div>
+	</body>
+</html>

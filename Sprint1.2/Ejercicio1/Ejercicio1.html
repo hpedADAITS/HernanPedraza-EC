@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Temporizador Contrarreloj</title>
   <script src="ejercicio1.js" defer></script>
 </head>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    #tiempoRestante {
-      font-size: 2em;
-      margin-top: 20px;
-      color: #333;
-    }
-  </style>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+  }
+
+  #tiempoRestante {
+    font-size: 2em;
+    margin-top: 20px;
+    color: #333;
+  }
+</style>
 </head>
+
 <body>
   <h1>Temporizador Contrarreloj</h1>
   <input type="number" id="inputSegundos" placeholder="Ingresa segundos" min="1">
   <button id="btnIniciar">Iniciar</button>
   <div id="tiempoRestante"></div>
 </body>
+
 </html>

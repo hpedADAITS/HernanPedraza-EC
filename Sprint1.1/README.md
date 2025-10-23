@@ -11,8 +11,8 @@ Una página con un botón que, al hacer clic, cambia el color de fondo a un colo
 
 **Archivos:**
 
--   `ejercicio1.html`
--   `ejercicio1.js`
+- `ejercicio1.html`
+- `ejercicio1.js`
 
 **Cómo funciona:**  
 Cada clic genera valores RGB aleatorios con `Math.random()` y actualiza el fondo con una transición suave.
@@ -29,8 +29,8 @@ Una página con dos campos de entrada para ancho y alto de un rectángulo, y un 
 
 **Archivos:**
 
--   `ejercicio2.html`
--   `ejercicio2.js`
+- `ejercicio2.html`
+- `ejercicio2.js`
 
 **Cómo funciona:**  
 Multiplica ancho por alto y muestra el resultado en un párrafo debajo.
@@ -47,8 +47,8 @@ Un campo de texto y un botón para añadir nuevos ítems a una lista (`<ul>`), u
 
 **Archivos:**
 
--   `ejercicio3.html`
--   `ejercicio3.js`
+- `ejercicio3.html`
+- `ejercicio3.js`
 
 **Cómo funciona:**  
 Cada texto ingresado se añade como un nuevo elemento `<li>` a la lista visible.
@@ -65,8 +65,8 @@ Varios `div` que cambian su color de fondo a azul y texto a blanco al pasar el r
 
 **Archivos:**
 
--   `ejercicio4.html`
--   `ejercicio4.js`
+- `ejercicio4.html`
+- `ejercicio4.js`
 
 **Cómo funciona:**  
 Usa eventos `mouseover` y `mouseout` para cambiar dinámicamente estilos CSS.
@@ -83,8 +83,8 @@ Detecta clics en cualquier elemento de la página y muestra su XPath único en u
 
 **Archivos:**
 
--   `Ejercicio5.html` (no modificable)
--   `ejercicio5.js`
+- `Ejercicio5.html` (no modificable)
+- `ejercicio5.js`
 
 **Cómo funciona:**  
 Escucha clics en el documento y dentro del iframe, genera XPath con la función personalizada y muestra el resultado en pantalla.
