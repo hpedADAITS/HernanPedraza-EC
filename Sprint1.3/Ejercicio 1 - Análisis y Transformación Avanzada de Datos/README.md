@@ -27,32 +27,26 @@ Cada script aplica distintos criterios de filtrado, cálculo y mejora sobre los 
 
 ---
 
+**filtrarPorCiudadYAsignatura.js**  
+![filtrarPorCiudad](./README_media/filrarporciudadasignaura.gif)
+
 **estudiantesAprobados.js**  
-![estudiantesAprobados](./README_media/estudiantesAprobados.png)
+![estudiantesAprobados](./README_media/estudiantescontodaslasmateriasaprobadas.gif)
 
 **promedioEdadEstudiantesConBeca.js**  
-![promedioEdad](./README_media/estudiantesAprobados.png)
+![promedioEdad](./README_media/promediodeestudiantesconbeca3.gif)
 
 **mejoraNotasBeca.js**  
-![mejoraNotas](./README_media/estudiantesAprobados.png)
+![mejoraNotas](./README_media/mejoradenotasparaestudiantesconbeca3.gif)
 
 **estudiantesSinBecaPorCiudad.js**  
-![sinBecaCiudad](./README_media/estudiantesAprobados.png)
+![sinBecaCiudad](./README_media/estudiantessinbecaporciudad.gif)
 
 **mejoresEstudiantes.js**  
-![mejoresEstudiantes](./README_media/estudiantesAprobados.png)
-
-**estudiantes.js**  
-![estudiantes](./README_media/estudiantesAprobados.png)
-
-**filtrarPorCiudadYAsignatura.js**  
-![filtrarPorCiudad](./README_media/estudiantesAprobados.png)
+![mejoresEstudiantes](./README_media/mejoresestudiantesentotal.gif)
 
 **asignaturaMenorRendimiento.js**  
-![menorRendimiento](./README_media/estudiantesAprobados.png)
-
-**index.html**  
-![index](./README_media/index.gif)
+![menorRendimiento](./README_media/asignaturaconmenorrendimiento.gif)
 
 ---
 
@@ -70,7 +64,7 @@ Cada script aplica distintos criterios de filtrado, cálculo y mejora sobre los 
 | `asignaturaMenorRendimiento.js`         | Analiza cuál es la asignatura con peor desempeño.                    |
 | `index.html`                            | Página principal de demostración del proyecto.                       |
 
-## 🚀 Uso
+## Uso
 
 1. Clona este repositorio.
 2. Abre `index.html` en tu navegador.
