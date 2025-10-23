@@ -79,14 +79,14 @@ partyForm.addEventListener("submit", async e => {
 		level_cap: levelCap,
 		ilvl_cap: ilvlCap,
 		party_role_creator: partyRole,
-		planned_start: plannedStart,
+		planned_start: plannedStart
 	};
 
 	try {
 		const response = await fetch(`${baseUrl}/partyfinder/${partySize}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(partyData),
+			body: JSON.stringify(partyData)
 		});
 		if (!response.ok) throw new Error("Error creando la party");
 
@@ -119,7 +119,7 @@ async function fetchAndDisplayMembers() {
 			const memberItem = document.createElement("div");
 			memberItem.className = "member-item";
 			memberItem.innerHTML = `
-				<span>ID: ${member.id} - Nombre: ${member.name || 'N/A'}</span><br/>
+				<span>ID: ${member.id} - Nombre: ${member.name || "N/A"}</span><br/>
 				<span>Nivel: ${member.level} - iLvl: ${member.ilvl}</span><br/>
 				<span>Rol: ${member.character_role}</span>
 			`;
@@ -154,14 +154,14 @@ memberForm.addEventListener("submit", async e => {
 		name,
 		level,
 		ilvl,
-		character_role,
+		character_role
 	};
 
 	try {
 		const response = await fetch(`${baseUrl}/guildmembers`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(memberData),
+			body: JSON.stringify(memberData)
 		});
 		if (!response.ok) throw new Error("Error creando el miembro");
 
@@ -170,7 +170,7 @@ memberForm.addEventListener("submit", async e => {
 		const memberItem = document.createElement("div");
 		memberItem.className = "member-item";
 		memberItem.innerHTML = `
-			<span>ID: ${createdMember.id} - Nombre: ${createdMember.name || 'N/A'}</span><br/>
+			<span>ID: ${createdMember.id} - Nombre: ${createdMember.name || "N/A"}</span><br/>
 			<span>Nivel: ${createdMember.level} - iLvl: ${createdMember.ilvl}</span><br/>
 			<span>Rol: ${createdMember.character_role}</span>
 		`;
