@@ -22,13 +22,13 @@ Cada script aplica distintos criterios de filtrado, cálculo y visualización so
 ---
 
 **parte1_basica.js**
-![parte1_basica](./README_media/parte1_basica.gif)
+![parte1_basica](./README_media/infobasica.gif)
 
 **parte2_comparativa.js**
-![parte2_comparativa](./README_media/parte2_comparativa.gif)
+![parte2_comparativa](./README_media/comparacion.gif)
 
 **parte3_evoluciones.js**
-![parte3_evoluciones](./README_media/parte3_evoluciones.gif)
+![parte3_evoluciones](./README_media/evoluciones.gif)
 
 ---
 
