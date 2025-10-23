@@ -1,83 +1,111 @@
 <!doctype html>
 <html lang="es">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Party Finder</title>
-		<link rel="stylesheet" href="styles.css" />
-		<script src="scripts.js"></script>
-	</head>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Party Finder & Guild Members</title>
+	<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="party-finder-app"></div>
+	<div class="form-container">
+		<h2>Crear Party</h2>
+		<form id="partyForm">
+			<div class="input-group">
+				<select id="partySize" required>
+					<option value="" disabled selected></option>
+					<option value="3">3</option>
+					<option value="5">5</option>
+					<option value="8">8</option>
+				</select>
+				<label>Party Size</label>
+			</div>
 
-	<body>
-		<div class="form-container">
-			<h2>Crear Party</h2>
-			<form id="partyForm">
-				<div class="input-group">
-					<select id="partySize" required>
-						<option value="" disabled selected></option>
-						<option value="3">3</option>
-						<option value="5">5</option>
-						<option value="8">8</option>
-					</select>
-					<label>Party Size</label>
-				</div>
+			<div class="input-group">
+				<input type="text" id="creatorId" placeholder=" " required />
+				<label>Creator ID</label>
+			</div>
 
-				<div class="input-group">
-					<input
-						type="text"
-						id="creatorId"
-						placeholder=" "
-						required
-					/>
-					<label>Creator ID</label>
-				</div>
+			<div class="input-group">
+				<input type="number" id="levelCap" min="1" placeholder=" " required />
+				<label>Level Cap</label>
+			</div>
 
-				<div class="input-group">
-					<input
-						type="number"
-						id="levelCap"
-						min="1"
-						placeholder=" "
-						required
-					/>
-					<label>Level Cap</label>
-				</div>
+			<div class="input-group">
+				<input type="number" id="ilvlCap" min="1" placeholder=" " required />
+				<label>Item Level Cap</label>
+			</div>
 
-				<div class="input-group">
-					<input
-						type="number"
-						id="ilvlCap"
-						min="1"
-						placeholder=" "
-						required
-					/>
-					<label>Item Level Cap</label>
-				</div>
+			<div class="input-group">
+				<select id="partyRole" required>
+					<option value="" disabled selected></option>
+					<option value="TANK">TANK</option>
+					<option value="HEALER">HEALER</option>
+					<option value="DAMAGE">DAMAGE</option>
+					<option value="SUPPORT">SUPPORT</option>
+				</select>
+				<label>Party Role</label>
+			</div>
 
-				<div class="input-group">
-					<select id="partyRole" required>
-						<option value="" disabled selected></option>
-						<option value="TANK">TANK</option>
-						<option value="HEALER">HEALER</option>
-						<option value="DAMAGE">DAMAGE</option>
-						<option value="SUPPORT">SUPPORT</option>
-					</select>
-					<label>Party Role</label>
-				</div>
+			<div class="input-group">
+				<input type="datetime-local" id="plannedStart" required />
+				<label>Planned Start</label>
+			</div>
 
-				<div class="input-group">
-					<input type="datetime-local" id="plannedStart" required />
-					<label>Planned Start</label>
-				</div>
+			<div class="error" id="partyFormError"></div>
 
-				<div class="error" id="formError"></div>
+			<button type="submit">Crear Party</button>
+		</form>
+	</div>
 
-				<button type="submit">Crear Party</button>
-			</form>
-		</div>
+	<hr/>
 
-		<div class="party-list" id="partyList">
-			<h3 class="party-list-title">Parties Creadas</h3>
-		</div>
-	</body>
+	<div class="form-container">
+		<h2>Crear Guild Member</h2>
+		<form id="memberForm">
+			<div class="input-group">
+				<input type="text" id="memberName" placeholder=" " required />
+				<label>Member Name</label>
+			</div>
+
+			<div class="input-group">
+				<input type="number" id="memberLevel" min="1" placeholder=" " required />
+				<label>Level</label>
+			</div>
+
+			<div class="input-group">
+				<input type="number" id="memberIlvl" min="1" placeholder=" " required />
+				<label>Item Level (iLvl)</label>
+			</div>
+
+			<div class="input-group">
+				<select id="memberRole" required>
+					<option value="" disabled selected></option>
+					<option value="TANK">TANK</option>
+					<option value="HEALER">HEALER</option>
+					<option value="DAMAGE">DAMAGE</option>
+					<option value="SUPPORT">SUPPORT</option>
+				</select>
+				<label>Character Role</label>
+			</div>
+
+			<div class="error" id="memberFormError"></div>
+
+			<button type="submit">Crear Miembro</button>
+		</form>
+	</div>
+
+	<hr/>
+
+	<div class="party-list" id="partyList">
+		<h3 class="party-list-title">Parties Creadas</h3>
+	</div>
+
+	<div class="member-list" id="memberList">
+		<h3 class="member-list-title">Guild Members</h3>
+	</div>
+</body>
+</div>
+	<script src="scripts.js"></script>
+</body>
 </html>
