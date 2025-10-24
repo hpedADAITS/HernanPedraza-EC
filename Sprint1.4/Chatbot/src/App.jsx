@@ -1,146 +1,197 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
   Typography,
-  Container,
   Box,
-  Button,
   CssBaseline,
+  IconButton,
+  TextField,
+  Paper,
   createTheme,
   ThemeProvider,
-  IconButton,
+  Button,
 } from '@mui/material';
 import { styled } from '@mui/system';
+import SendIcon from '@mui/icons-material/Send';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-
 
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    primary: {
-      main: '#90CAF9',
-      dark: '#42a5f5',
-    },
-    secondary: {
-      main: '#f48fb1',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1E1E1E',
-    },
-    text: {
-      primary: '#E0E0E0',
-      secondary: '#B0B0B0',
-    },
+    primary: { main: '#90CAF9', dark: '#42a5f5' },
+    background: { default: '#121212', paper: '#1E1E1E' },
+    text: { primary: '#E0E0E0', secondary: '#B0B0B0' },
   },
   typography: {
     fontFamily: 'Roboto, sans-serif',
-    h3: {
-      fontWeight: 600,
-      letterSpacing: '0.02em',
-      color: '#90CAF9',
-    },
-    h6: {
-      fontWeight: 400,
-      color: '#B0B0B0',
-    },
-    button: {
-      textTransform: 'none',
-      fontWeight: 600,
-    },
-  },
-  components: {
-    MuiAppBar: {
-      styleOverrides: {
-        colorPrimary: {
-          backgroundColor: '#1E1E1E',
-          boxShadow: 'none',
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 25,
-        },
-      },
-    },
+    h6: { color: '#B0B0B0' },
   },
 });
 
-
-const StyledButton = styled(Button)(({ theme }) => ({
-
-  background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
-  border: 0,
-  color: theme.palette.text.primary,
-  height: 52,
-  padding: '0 30px',
-  boxShadow: `0 5px 15px 2px rgba(144, 202, 249, 0.25)`,
-  transition: 'all 0.3s ease-in-out',
-  '&:hover': {
-    background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
-    boxShadow: `0 8px 20px 2px rgba(144, 202, 249, 0.4)`,
-    transform: 'translateY(-2px)',
-  },
-  '&:active': {
-    transform: 'translateY(0)',
-    boxShadow: `0 3px 10px 1px rgba(144, 202, 249, 0.2)`,
+const MessageBubble = styled(Paper)(({ theme, isUser }) => ({
+  position: 'relative',
+  alignSelf: isUser ? 'flex-end' : 'flex-start',
+  backgroundColor: isUser
+    ? theme.palette.primary.dark
+    : theme.palette.background.paper,
+  color: isUser ? '#fff' : theme.palette.text.primary,
+  padding: '10px 15px',
+  borderRadius: 10,
+  maxWidth: '75%',
+  marginBottom: 16,
+  boxShadow: '0 2px 6px rgba(0,0,0,0.25)',
+  fontSize: '1rem',
+  lineHeight: 1.4,
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    width: 0,
+    height: 0,
+    borderStyle: 'solid',
+    ...(isUser
+      ? {
+        borderWidth: '10px 0 10px 10px',
+        borderColor: `transparent transparent transparent ${darkTheme.palette.primary.dark}`,
+        right: -9,
+        top: 13,
+      }
+      : {
+        borderWidth: '10px 10px 10px 0',
+        borderColor: `transparent ${darkTheme.palette.background.paper} transparent transparent`,
+        left: -9,
+        top: 13,
+      }),
   },
 }));
 
+export default function App() {
+  const [messages, setMessages] = useState([
+    { text: '👋 Hi! Ask me about any Pokémon by name or ID.', isUser: false },
+  ]);
+  const [input, setInput] = useState('');
 
-function App() {
-  const handleStartChat = () => {
-    console.log('Educational Chatbot initiated in Dark Mode!');
-    alert('Welcome to your Dark Mode Learning Experience!');
+  const fetchPokemon = async (query) => {
+    try {
+      const response = await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${query.trim().toLowerCase()}`
+      );
+      if (!response.ok) throw new Error('Pokémon not found!');
+      const data = await response.json();
+      const types = data.types.map((t) => t.type.name).join(', ');
+      return ` ${data.name.toUpperCase()} (#${data.id})\nType: ${types}\nSprite: ${data.sprites.front_default}`;
+    } catch (error) {
+      return 'ERROR: Pokémon not found. Try another name or ID!';
+    }
+  };
 
+  const handleSend = async () => {
+    const trimmedQuery = input.trim(); // Remove any leading/trailing spaces
+    if (!trimmedQuery) return; // Ignore empty messages
+
+    // Add user's message
+    const userMessage = { text: trimmedQuery, isUser: true };
+    setMessages((prev) => [...prev, userMessage]);
+
+    setInput(''); // Clear input field
+
+    // Check if input looks like a Pokémon name/ID
+    const pokeRegex = /^[a-zA-Z]+$|^\d+$/;
+    if (pokeRegex.test(trimmedQuery)) {
+      // Bot fetching Pokémon
+      const botReply = await fetchPokemon(trimmedQuery);
+      setMessages((prev) => [...prev, { text: botReply, isUser: false }]);
+    } else {
+      // Normal bot response
+      setMessages((prev) => [
+        ...prev,
+        { text: '🤖 I can only provide Pokémon info. Try a name or ID.', isUser: false },
+      ]);
+    }
   };
 
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <AppBar position="static">
-        <Toolbar>
-          <AutoStoriesIcon sx={{ mr: 1, color: darkTheme.palette.primary.main }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Botak
-          </Typography>
-          <IconButton color="inherit">
-            <DarkModeIcon /> { }
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="sm" sx={{ mt: 8 }}> { }
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        {/* Header */}
+        <AppBar position="static" elevation={0} color="transparent">
+          <Toolbar>
+            <AutoStoriesIcon sx={{ mr: 1, color: darkTheme.palette.primary.main }} />
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Botak
+            </Typography>
+            <IconButton color="inherit">
+              <DarkModeIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        {/* Chat area */}
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            p: 2,
+            overflowY: 'auto',
+            backgroundColor: 'background.default',
+          }}
+        >
+          {messages.map((msg, index) => (
+            <MessageBubble key={index} isUser={msg.isUser}>
+              {msg.text.includes('Sprite:') ? (
+                <>
+                  <Typography>{msg.text.split('\n')[0]}</Typography>
+                  <Typography>{msg.text.split('\n')[1]}</Typography>
+                  <img
+                    src={msg.text.split('\n')[2].replace('Sprite: ', '')}
+                    alt="pokemon"
+                    style={{ width: 80, height: 80, marginTop: 5 }}
+                  />
+                </>
+              ) : (
+                msg.text
+              )}
+            </MessageBubble>
+          ))}
+        </Box>
+
+        {/* Input area */}
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
-            textAlign: 'center',
-            p: 5,
-            borderRadius: 3,
+            p: 2,
+            borderTop: `1px solid ${darkTheme.palette.divider}`,
             backgroundColor: 'background.paper',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-            border: `1px solid ${darkTheme.palette.divider}`,
           }}
         >
-          <Typography variant="h3" component="h1" gutterBottom>
-            Unlock Knowledge, Any Time.
-          </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
-            Your personal AI learning companion, designed for a focused and
-            immersive educational journey. Explore new horizons in comfort.
-          </Typography>
-          <StyledButton variant="contained" onClick={handleStartChat}>
-            Dive into Learning
-          </StyledButton>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Type Pokémon name or ID..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            sx={{
+              input: { color: 'text.primary' },
+              backgroundColor: 'background.default',
+              borderRadius: 2,
+            }}
+          />
+          <Button
+            onClick={handleSend}
+            variant="contained"
+            color="primary"
+            sx={{ ml: 2, borderRadius: 3, minWidth: 48, height: 48 }}
+          >
+            <SendIcon />
+          </Button>
         </Box>
-      </Container>
+      </Box>
     </ThemeProvider>
   );
 }
-
-export default App;
