@@ -138,7 +138,13 @@ export default function App() {
       const loadingMessage = { type: "bot", text: "🤖 Bot is typing..." };
       setMessages((prev) => [...prev, loadingMessage]);
 
-      const botReply = await fetchPokemon(trimmedQuery);
+      let botReply;
+      if (trimmedQuery.toLowerCase() === "missingno") {
+        // Special fake case
+        botReply = { type: "bot", text: "🌀 Feeling NULL?" };
+      } else {
+        botReply = await fetchPokemon(trimmedQuery);
+      }
 
       setMessages((prev) => [
         ...prev.filter((m) => m.text !== "🤖 Bot is typing..."),
@@ -269,7 +275,7 @@ export default function App() {
             sx={{
               input: { color: "text.primary" },
               backgroundColor: "background.default",
-              borderRadius: 2,
+              borderRadius: "12px",
             }}
           />
 
