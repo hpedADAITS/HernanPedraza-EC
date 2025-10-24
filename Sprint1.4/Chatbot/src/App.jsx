@@ -66,6 +66,8 @@ const MessageBubble = styled(Paper)(({ theme, isUser }) => ({
   },
 }));
 
+
+
 export default function App() {
   const [messages, setMessages] = useState([
     { text: '👋 Hi! Ask me about any Pokémon by name or ID.', isUser: false },
@@ -142,22 +144,40 @@ export default function App() {
         >
           {messages.map((msg, index) => (
             <MessageBubble key={index} isUser={msg.isUser}>
-              {msg.text.includes('Sprite:') ? (
-                <>
-                  <Typography>{msg.text.split('\n')[0]}</Typography>
-                  <Typography>{msg.text.split('\n')[1]}</Typography>
-                  <img
-                    src={msg.text.split('\n')[2].replace('Sprite: ', '')}
-                    alt="pokemon"
-                    style={{ width: 80, height: 80, marginTop: 5 }}
-                  />
-                </>
-              ) : (
-                msg.text
-              )}
+              {/* Animation wrapper */}
+              <Box
+                sx={{
+                  animation: 'fadeInUp 0.3s ease forwards',
+                  '@keyframes fadeInUp': {
+                    from: { opacity: 0, transform: 'translateY(10px)' },
+                    to: { opacity: 1, transform: 'translateY(0)' },
+                  },
+                }}
+              >
+                {msg.text.includes('Sprite:') ? (() => {
+                  const lines = msg.text.split('\n');
+                  const spriteUrl = lines[2].replace('Sprite: ', '');
+                  return (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <img
+                        src={spriteUrl}
+                        alt="pokemon"
+                        style={{ width: 80, height: 80, borderRadius: 8 }}
+                      />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <Typography variant="body1">{lines[0]}</Typography>
+                        <Typography variant="body2" color="text.secondary">{lines[1]}</Typography>
+                      </Box>
+                    </Box>
+                  );
+                })() : (
+                  <Typography>{msg.text}</Typography>
+                )}
+              </Box>
             </MessageBubble>
           ))}
         </Box>
+
 
         {/* Input area */}
         <Box
