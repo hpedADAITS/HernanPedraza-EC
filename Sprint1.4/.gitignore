@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+.copilotignore
 npm-debug.log*
 
 node_modules
