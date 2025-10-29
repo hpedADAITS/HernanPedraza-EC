@@ -3,12 +3,20 @@ import { Box } from "@mui/material";
 import UserMessageBubble from "./Bubbles/UserMessageBubble";
 import BotMessageBubble from "./Bubbles/BotMessageBubble";
 
-export default function MessageList({ messages }) {
+export default function MessageList({ messages, centerFirst }) {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const firstMessageStyle = centerFirst
+    ? {
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "60vh",
+      }
+    : {};
 
   return (
     <Box
@@ -19,6 +27,7 @@ export default function MessageList({ messages }) {
         p: 2,
         overflowY: "auto",
         backgroundColor: "background.default",
+        ...firstMessageStyle,
       }}
     >
       {messages.map((msg, index) =>

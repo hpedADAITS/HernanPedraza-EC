@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Box } from "@mui/material";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
+import AppTitle from "./AppTitle";
 import { fetchPokemon } from "../../services/pokeapi";
 
-export default function ChatWindow() {
+export default function ChatWindow({ onChatStateChange }) {
   const [messages, setMessages] = useState([
     { type: "bot", text: "👋 Hi! Ask me about any Pokémon by name or ID." },
   ]);
+  const [chatStarted, setChatStarted] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
@@ -16,6 +18,10 @@ export default function ChatWindow() {
   const handleSend = async () => {
     const trimmedQuery = input.trim();
     if (!trimmedQuery) return;
+    if (!chatStarted) {
+      setChatStarted(true);
+      onChatStateChange?.(true);
+    }
     setHistory((prev) => [...prev, trimmedQuery]);
     setHistoryIndex(-1);
 
@@ -54,8 +60,16 @@ export default function ChatWindow() {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <MessageList messages={messages} />
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        position: "relative",
+      }}
+    >
+      <AppTitle visible={!chatStarted} />
+      <MessageList messages={messages} centerFirst={!chatStarted} />
       <MessageInput
         input={input}
         setInput={setInput}
