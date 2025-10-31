@@ -3,9 +3,11 @@ import { Box, Select, MenuItem, Typography } from "@mui/material";
 
 const EndpointSelector = ({ currentEndpoint, onEndpointChange }) => {
   const endpoints = [
-    { value: "pokeapi", label: "PokeAPI", isLocal: false },
-    { value: "lmstudio", label: "LM Studio", isLocal: true },
+    { value: "pokeapi", label: "PokeAPI", isLocal: false, deprecated: true },
+    { value: "lmstudio", label: "Local", isLocal: true },
   ];
+
+  const currentEp = endpoints.find((ep) => ep.value === currentEndpoint);
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -21,7 +23,7 @@ const EndpointSelector = ({ currentEndpoint, onEndpointChange }) => {
           </MenuItem>
         ))}
       </Select>
-      {endpoints.find((ep) => ep.value === currentEndpoint)?.isLocal && (
+      {currentEp?.isLocal && (
         <Typography
           variant="caption"
           sx={{
@@ -33,6 +35,20 @@ const EndpointSelector = ({ currentEndpoint, onEndpointChange }) => {
           }}
         >
           Local endpoint
+        </Typography>
+      )}
+      {currentEp?.deprecated && (
+        <Typography
+          variant="caption"
+          sx={{
+            backgroundColor: "rgba(255, 0, 0, 0.1)",
+            color: "#d32f2f",
+            padding: "2px 8px",
+            borderRadius: "4px",
+            fontWeight: "medium",
+          }}
+        >
+          ⚠️ Will be removed in Sprint 1.5
         </Typography>
       )}
     </Box>

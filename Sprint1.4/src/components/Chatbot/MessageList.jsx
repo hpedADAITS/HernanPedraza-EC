@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import UserMessageBubble from "./Bubbles/UserMessageBubble";
 import BotMessageBubble from "./Bubbles/BotMessageBubble";
 
-export default function MessageList({ messages }) {
+export default function MessageList({ messages, currentEndpoint }) {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function MessageList({ messages }) {
     >
       {messages.map((msg, index) =>
         msg.type === "user" ? (
-          <UserMessageBubble key={index} text={msg.text} />
+          <UserMessageBubble key={index} text={msg.text} currentEndpoint={currentEndpoint} />
         ) : (
           <BotMessageBubble key={index} message={msg} />
         )

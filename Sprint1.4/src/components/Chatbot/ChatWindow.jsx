@@ -1,25 +1,59 @@
-import React, { useState } from "react";
-import { Box } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Modal, Typography, Button } from "@mui/material";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import { fetchPokemon } from "../../services/pokeapi";
 import OpenAIService from "../../services/openai";
 import { getEndpointConfig } from "../../config/endpoints";
 
-export default function ChatWindow({ currentEndpoint, onEndpointChange }) {
-  const [messages, setMessages] = useState([
-    {
-      type: "bot",
-      text: "👋 Hi! Ask me about any Pokémon by name or ID, or switch to LM Studio for AI chat!",
-    },
-  ]);
+export default function ChatWindow({ currentEndpoint }) {
+  const [messagesByEndpoint, setMessagesByEndpoint] = useState({
+    pokeapi: [
+      {
+        type: "bot",
+        text: "👋 Hi! Ask me about any Pokémon by name or ID, or switch to LM Studio for AI chat!",
+      },
+    ],
+    lmstudio: [
+      {
+        type: "bot",
+        text: "👋 Hi! I'm Botak. Ask me anything!",
+      },
+    ],
+  });
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [showLmStudioModal, setShowLmStudioModal] = useState(false);
+
+  useEffect(() => {
+    if (
+      currentEndpoint === "lmstudio" &&
+      !sessionStorage.getItem("lmstudioModalShown")
+    ) {
+      setShowLmStudioModal(true);
+    }
+  }, [currentEndpoint]);
+
+  const messages = messagesByEndpoint[currentEndpoint] || [];
+  const setMessages = (updater) => {
+    setMessagesByEndpoint((prev) => ({
+      ...prev,
+      [currentEndpoint]:
+        typeof updater === "function"
+          ? updater(prev[currentEndpoint] || [])
+          : updater,
+    }));
+  };
 
   const lmStudioConfig = getEndpointConfig("lmstudio");
   const openai = OpenAIService(lmStudioConfig.baseUrl);
+
+  const handleCloseModal = () => {
+    setShowLmStudioModal(false);
+    sessionStorage.setItem("lmstudioModalShown", "true");
+  };
 
   const handleSend = async () => {
     const trimmedQuery = input.trim();
@@ -89,15 +123,9 @@ export default function ChatWindow({ currentEndpoint, onEndpointChange }) {
     }
   };
 
-  React.useEffect(() => {
-    if (currentEndpoint === "lmstudio") {
-      setMessages([]);
-    }
-  }, [currentEndpoint]);
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <MessageList messages={messages} />
+      <MessageList messages={messages} currentEndpoint={currentEndpoint} />
       <MessageInput
         input={input}
         setInput={setInput}
@@ -105,7 +133,40 @@ export default function ChatWindow({ currentEndpoint, onEndpointChange }) {
         history={history}
         historyIndex={historyIndex}
         setHistoryIndex={setHistoryIndex}
+        currentEndpoint={currentEndpoint}
       />
+      <Modal
+        open={showLmStudioModal}
+        onClose={handleCloseModal}
+        BackdropProps={{
+          style: { backdropFilter: "blur(5px)" },
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" component="h2">
+            LM Studio Setup
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            Make sure LM Studio is running in order to use the API.
+          </Typography>
+          <Button onClick={handleCloseModal} variant="contained" sx={{ mt: 2 }}>
+            OK
+          </Button>
+        </Box>
+      </Modal>
     </Box>
   );
 }

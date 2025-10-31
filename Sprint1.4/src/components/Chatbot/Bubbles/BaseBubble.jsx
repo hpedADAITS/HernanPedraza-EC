@@ -1,10 +1,10 @@
 import { styled } from "@mui/system";
 
-const BaseBubble = styled("div")(({ theme, isUser }) => ({
+const BaseBubble = styled("div")(({ theme, isUser, currentEndpoint }) => ({
   position: "relative",
   alignSelf: isUser ? "flex-end" : "flex-start",
   backgroundColor: isUser
-    ? theme.palette.primary.dark
+    ? (currentEndpoint === "lmstudio" ? "#FFC107" : theme.palette.primary.dark)
     : theme.palette.background.paper,
   color: isUser ? "#fff" : theme.palette.text.primary,
   padding: "12px 18px",
@@ -26,7 +26,7 @@ const BaseBubble = styled("div")(({ theme, isUser }) => ({
     ...(isUser
       ? {
           borderWidth: "10px 0 10px 10px",
-          borderColor: `transparent transparent transparent ${theme.palette.primary.dark}`,
+          borderColor: `transparent transparent transparent ${currentEndpoint === "lmstudio" ? "#FFC107" : theme.palette.primary.dark}`,
           right: -9,
           top: 13,
         }

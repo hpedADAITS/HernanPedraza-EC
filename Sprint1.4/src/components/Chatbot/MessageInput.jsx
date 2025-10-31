@@ -9,6 +9,7 @@ export default function MessageInput({
   history,
   historyIndex,
   setHistoryIndex,
+  currentEndpoint,
 }) {
   return (
     <Box
@@ -23,7 +24,11 @@ export default function MessageInput({
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Type Pokémon name or ID..."
+        placeholder={
+          currentEndpoint === "lmstudio"
+            ? "Input your message to Botak..."
+            : "Type Pokémon name or ID..."
+        }
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {

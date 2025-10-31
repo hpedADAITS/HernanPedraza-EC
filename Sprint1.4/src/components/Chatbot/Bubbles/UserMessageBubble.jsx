@@ -2,11 +2,11 @@ import React from "react";
 import { Typography } from "@mui/material";
 import BaseBubble from "./BaseBubble";
 
-const UserMessageBubble = ({ text }) => {
+const UserMessageBubble = ({ text, currentEndpoint }) => {
   return (
-    <BaseBubble isUser={true}>
-      <Typography variant="body1">{text}</Typography>
-    </BaseBubble>
+  <BaseBubble isUser={true} currentEndpoint={currentEndpoint}>
+  <Typography variant="body1">{text}</Typography>
+  </BaseBubble>
   );
 };
 
