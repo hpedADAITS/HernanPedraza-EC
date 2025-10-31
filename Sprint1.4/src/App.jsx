@@ -6,6 +6,7 @@ import ChatWindow from "./components/Chatbot/ChatWindow";
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [currentEndpoint, setCurrentEndpoint] = useState("pokeapi");
 
   const handleToggleTheme = () => setIsDarkMode(!isDarkMode);
 
@@ -13,8 +14,16 @@ export default function App() {
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <CssBaseline />
       <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-        <Header isDarkMode={isDarkMode} onToggleTheme={handleToggleTheme} />
-        <ChatWindow />
+        <Header 
+          isDarkMode={isDarkMode} 
+          onToggleTheme={handleToggleTheme}
+          currentEndpoint={currentEndpoint}
+          onEndpointChange={setCurrentEndpoint}
+        />
+        <ChatWindow 
+          currentEndpoint={currentEndpoint}
+          onEndpointChange={setCurrentEndpoint}
+        />
       </Box>
     </ThemeProvider>
   );
