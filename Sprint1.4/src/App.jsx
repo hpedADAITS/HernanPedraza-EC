@@ -13,7 +13,14 @@ export default function App() {
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
       <CssBaseline />
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100dvh",
+        pt: 'env(safe-area-inset-top)',
+        pl: 'env(safe-area-inset-left)',
+        pr: 'env(safe-area-inset-right)',
+      }}>
         <Header 
           isDarkMode={isDarkMode} 
           onToggleTheme={handleToggleTheme}

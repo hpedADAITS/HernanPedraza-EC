@@ -16,9 +16,24 @@ export default function MessageInput({
       sx={{
         display: "flex",
         alignItems: "center",
-        p: 2,
+        p: { xs: 1, sm: 2 },
+        pb: {
+          xs: 'max(calc(1 * 8px + env(safe-area-inset-bottom)), 8px)',
+          sm: 2
+        },
+        pl: {
+          xs: 'max(calc(1 * 8px + env(safe-area-inset-left)), 8px)',
+          sm: 2
+        },
+        pr: {
+          xs: 'max(calc(1 * 8px + env(safe-area-inset-right)), 8px)',
+          sm: 2
+        },
         borderTop: `1px solid`,
         backgroundColor: "background.paper",
+        position: "sticky",
+        bottom: 0,
+        zIndex: 1,
       }}
     >
       <TextField
@@ -60,7 +75,13 @@ export default function MessageInput({
         onClick={handleSend}
         variant="contained"
         color="primary"
-        sx={{ ml: 2, borderRadius: 3, minWidth: 48, height: 48 }}
+        sx={{
+          ml: { xs: 1, sm: 2 },
+          borderRadius: 3,
+          minWidth: { xs: 40, sm: 48 },
+          height: { xs: 40, sm: 48 },
+          p: { xs: 1, sm: 1.5 }
+        }}
       >
         <SendIcon />
       </Button>

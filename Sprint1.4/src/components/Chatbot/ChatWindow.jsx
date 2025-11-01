@@ -124,7 +124,7 @@ export default function ChatWindow({ currentEndpoint }) {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
       <MessageList messages={messages} currentEndpoint={currentEndpoint} />
       <MessageInput
         input={input}

@@ -16,7 +16,8 @@ export default function MessageList({ messages, currentEndpoint }) {
         flexGrow: 1,
         display: "flex",
         flexDirection: "column",
-        p: 2,
+        p: { xs: 1, sm: 2 },
+        pb: { xs: 'calc(40px + 8px + env(safe-area-inset-bottom))', sm: 'calc(48px + 16px)' },
         overflowY: "auto",
         backgroundColor: "background.default",
       }}
