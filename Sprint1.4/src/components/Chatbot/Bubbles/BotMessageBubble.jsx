@@ -2,6 +2,22 @@ import React from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import BaseBubble from "./BaseBubble";
 
+// Simple markdown parser for bold text
+const parseMarkdown = (text) => {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const boldText = part.slice(2, -2);
+      return (
+        <Box key={index} component="span" sx={{ fontWeight: 'bold', display: 'inline' }}>
+          {boldText}
+        </Box>
+      );
+    }
+    return <Box key={index} component="span" sx={{ display: 'inline' }}>{part}</Box>;
+  });
+};
+
 const BotMessageBubble = ({ message }) => {
   if (message.type === "pokemon") {
     return (
@@ -36,7 +52,9 @@ const BotMessageBubble = ({ message }) => {
 
   return (
     <BaseBubble isUser={false}>
-      <Typography variant="body1">{message.text}</Typography>
+      <Typography variant="body1" sx={{ display: 'inline' }}>
+        {parseMarkdown(message.text)}
+      </Typography>
     </BaseBubble>
   );
 };
