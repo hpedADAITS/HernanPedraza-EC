@@ -6,6 +6,7 @@ import OpenAIService from "../../services/openai";
 import { getEndpointConfig } from "../../config/endpoints";
 import { conversationManager } from "../../services/conversationManager";
 import { useHistoryState } from "../../hooks/useHistoryState";
+import { useTemperature } from "../../hooks/useTemperature";
 
 export default function ChatWindow({ conversationId, onBackToHistory }) {
   const [messages, setMessages] = useState([]);
@@ -16,6 +17,7 @@ export default function ChatWindow({ conversationId, onBackToHistory }) {
   const [showLmStudioModal, setShowLmStudioModal] = useState(false);
   const messageInputRef = useRef(null);
   const { setFocus } = useHistoryState();
+  const { temperature } = useTemperature();
 
   useEffect(() => {
     if (conversationId) {
@@ -70,7 +72,7 @@ export default function ChatWindow({ conversationId, onBackToHistory }) {
           ...messageHistory,
           { role: "user", content: trimmedQuery },
         ],
-        temperature: 0.7,
+        temperature: temperature,
         max_tokens: -1,
         stream: false,
       });

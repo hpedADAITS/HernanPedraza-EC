@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useHistoryState } from "../../hooks/useHistoryState";
+import { useTranslation } from "../../hooks/useTranslation";
 import {
   Box,
   Card,
@@ -40,6 +41,7 @@ const ConversationsView = ({ currentUser, onLogout }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { setFocus } = useHistoryState();
+  const { t } = useTranslation();
 
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -219,7 +221,7 @@ const ConversationsView = ({ currentUser, onLogout }) => {
         >
           <AutoStoriesIcon sx={{ fontSize: 28, color: "primary.main" }} />
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-            Conversations
+            {t('conversations')}
           </Typography>
           <IconButton color="inherit" onClick={handleSettingsClick}>
             <SettingsIcon />
@@ -293,7 +295,7 @@ const ConversationsView = ({ currentUser, onLogout }) => {
             id="conversations-search"
             fullWidth
             size="small"
-            placeholder="Search conversations..."
+            placeholder={t('searchConversations')}
             value={searchQuery}
             onChange={handleSearchChange}
             InputProps={{
@@ -305,11 +307,11 @@ const ConversationsView = ({ currentUser, onLogout }) => {
             }}
           />
           <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 150 } }}>
-            <InputLabel>Sort by</InputLabel>
-            <Select value={sortOrder} onChange={handleSortChange} label="Sort by">
-              <MenuItem value="newest">Newest First</MenuItem>
-              <MenuItem value="oldest">Oldest First</MenuItem>
-              <MenuItem value="alphabetical">Alphabetical</MenuItem>
+            <InputLabel>{t('sortBy')}</InputLabel>
+            <Select value={sortOrder} onChange={handleSortChange} label={t('sortBy')}>
+              <MenuItem value="newest">{t('newestFirst')}</MenuItem>
+              <MenuItem value="oldest">{t('oldestFirst')}</MenuItem>
+              <MenuItem value="alphabetical">{t('alphabetical')}</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -323,7 +325,7 @@ const ConversationsView = ({ currentUser, onLogout }) => {
         {loading ? (
           <Box sx={{ textAlign: "center", py: 8 }}>
             <Typography variant="h6" color="text.secondary">
-              Loading conversations...
+            {t('loadingConversations')}
             </Typography>
           </Box>
         ) : error ? (
@@ -332,16 +334,16 @@ const ConversationsView = ({ currentUser, onLogout }) => {
               {error}
             </Typography>
             <Button variant="outlined" onClick={loadConversations}>
-              Try Again
+            {t('tryAgain')}
             </Button>
           </Box>
         ) : filteredAndSortedConversations.length === 0 ? (
           <Box sx={{ textAlign: "center", py: 4 }}>
             <Typography color="text.secondary" sx={{ mb: 2 }}>
-              {searchQuery ? "No conversations found" : "No conversations yet"}
+            {searchQuery ? t('noConversationsFound') : t('noConversationsYet')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {searchQuery ? "Try a different search term" : "Create a new conversation to get started"}
+            {searchQuery ? t('tryDifferentSearch') : t('createNewConversation')}
             </Typography>
           </Box>
         ) : (

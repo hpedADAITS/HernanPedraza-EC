@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  CircularProgress,
-  TextField,
-  InputAdornment,
+Box,
+Typography,
+Card,
+CardContent,
+Grid,
+Button,
+CircularProgress,
+TextField,
+InputAdornment,
+  IconButton,
+  Menu,
+  MenuItem,
+  Divider,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CatchingPokemonIcon from "@mui/icons-material/CatchingPokemon";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { useTranslation } from "../../hooks/useTranslation";
 
 const Pokedex = () => {
+  const { t } = useTranslation();
   const [pokemon, setPokemon] = useState([]);
   const [filteredPokemon, setFilteredPokemon] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +28,8 @@ const Pokedex = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchingMore, setIsSearchingMore] = useState(false);
   const [offset, setOffset] = useState(20);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
     fetchPokemon();
@@ -204,6 +213,30 @@ const Pokedex = () => {
     }
   };
 
+  const handleSettingsClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleClearCache = () => {
+    localStorage.removeItem('pokedex-data');
+    localStorage.removeItem('pokedex-timestamp');
+    // Clear specific Pokemon cache items
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('pokedex-specific-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    setPokemon([]);
+    setFilteredPokemon([]);
+    fetchPokemon(); // Reload fresh data
+    handleClose();
+  };
+
   return (
     <Box
       sx={{
@@ -221,38 +254,102 @@ const Pokedex = () => {
         sx={{
           borderBottom: "1px solid",
           borderColor: "divider",
-          p: 2,
         }}
       >
         <Box
           sx={{
+            p: 2,
             display: "flex",
             alignItems: "center",
             gap: 1,
-            mb: 2,
           }}
         >
           <CatchingPokemonIcon sx={{ fontSize: 28, color: "primary.main" }} />
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-            Pokédex
+            {t('pokedex')}
           </Typography>
+          <IconButton color="inherit" onClick={handleSettingsClick}>
+            <SettingsIcon />
+          </IconButton>
         </Box>
-        <TextField
-          fullWidth
-          placeholder="Search Pokemon by name, type, or ID... (Enter: find specific or load more)"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleSearchKeyDown}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
+        <Box sx={{ px: 2, pb: 2 }}>
+          <TextField
+            fullWidth
+            placeholder={t('searchPokemon')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            size="small"
+            disabled={isSearchingMore}
+          />
+        </Box>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          PaperProps={{
+            elevation: 8,
+            sx: {
+              overflow: 'visible',
+              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+              mt: 1.5,
+              zIndex: 1300,
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+            },
           }}
-          size="small"
-          disabled={isSearchingMore}
-        />
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <Box sx={{ p: 2, minWidth: 240 }}>
+            <Box sx={{ textAlign: 'center', mb: 1.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '0.95rem' }}>
+                Pokédex Settings
+              </Typography>
+            </Box>
+            <Divider sx={{ mb: 1.5 }} />
+            <MenuItem
+              onClick={handleClearCache}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                borderRadius: 1,
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+            >
+              <Typography variant="body2">Clear Cache</Typography>
+            </MenuItem>
+            <Divider sx={{ mt: 1.5, mb: 1.5 }} />
+            <Box sx={{ textAlign: 'center', px: 1 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                Powered by PokeAPI
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block', fontSize: '0.75rem' }}>
+                Data from pokeapi.co
+              </Typography>
+            </Box>
+          </Box>
+        </Menu>
       </Box>
 
       {/* Content */}
@@ -261,7 +358,7 @@ const Pokedex = () => {
           <Box sx={{ textAlign: "center", py: 8 }}>
             <CircularProgress sx={{ mb: 2 }} />
             <Typography variant="h6" color="text.secondary">
-              Loading Pokémon...
+              {t('loadingPokemon')}
             </Typography>
           </Box>
         ) : error ? (
@@ -390,7 +487,7 @@ const Pokedex = () => {
             {filteredPokemon.length === 0 && searchQuery && !isSearchingMore && (
               <Box sx={{ textAlign: "center", py: 4 }}>
                 <Typography color="text.secondary" sx={{ mb: 1 }}>
-                  No Pokémon found matching "{searchQuery}"
+                {t('noPokemonFound')} "{searchQuery}"
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Press Enter to search for this specific Pokémon

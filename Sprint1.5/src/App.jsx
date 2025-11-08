@@ -6,6 +6,7 @@ import CatchingPokemonIcon from "@mui/icons-material/CatchingPokemon";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { darkTheme, lightTheme } from "./theme/theme";
 import { useTheme } from "./hooks/useTheme";
+import { useTranslation } from "./hooks/useTranslation";
 import ConversationView from "./components/Chatbot/ConversationView";
 import ConversationsView from "./components/ChatHistory/ConversationsView";
 import Pokedex from "./components/Pokedex/Pokedex";
@@ -22,6 +23,7 @@ const ProtectedRoute = ({ isLoggedIn, children }) => {
 const MainLayout = ({ isDarkMode, onToggleTheme, onLogout, currentUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const getCurrentTab = () => {
     if (location.pathname.startsWith("/conversation")) return null;
@@ -68,17 +70,17 @@ const MainLayout = ({ isDarkMode, onToggleTheme, onLogout, currentUser }) => {
           }}
         >
           <BottomNavigationAction
-            label="Conversations"
+            label={t('conversations')}
             value="conversations"
             icon={<ChatIcon />}
           />
           <BottomNavigationAction
-            label="Pokédex"
+            label={t('pokedex')}
             value="pokedex"
             icon={<CatchingPokemonIcon />}
           />
           <BottomNavigationAction
-            label="Settings"
+            label={t('settings')}
             value="settings"
             icon={<SettingsIcon />}
           />
