@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+    # MariaDB Database
+    mariadb:
+        image: mariadb:latest
+        container_name: botak-mariadb
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+            MYSQL_DATABASE: ${DB_NAME:-botak_db}
+            MYSQL_USER: ${DB_USER:-botak_user}
+            MYSQL_PASSWORD: ${DB_PASSWORD:-botak_password}
+            # Improve MariaDB startup stability
+            MARIADB_INITDB_SKIP_TZINFO: 1
+        ports:
+            - '${DB_PORT:-3306}:3306'
+        volumes:
+            - mariadb_data:/var/lib/mysql
+        healthcheck:
+            # Check if MariaDB is responding to queries
+            test: ['CMD-SHELL', 'mariadb-admin ping -h localhost --silent || mysqladmin ping -h localhost --silent || exit 1']
+            timeout: 5s
+            retries: 30
+            start_period: 60s
+            interval: 2s
+        networks:
+            - botak-network
+
+    # Express Backend API
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        container_name: botak-backend
+        restart: unless-stopped
+        environment:
+            # Database Configuration
+            DB_HOST: mariadb
+            DB_PORT: ${DB_PORT:-3306}
+            DB_USER: ${DB_USER:-botak_user}
+            DB_PASSWORD: ${DB_PASSWORD:-botak_password}
+            DB_NAME: ${DB_NAME:-botak_db}
+            # API Configuration
+            PORT: 3001
+            NODE_ENV: development
+            CORS_ORIGIN: 'http://localhost:5173'
+            # LM Studio Configuration
+            LM_STUDIO_BASE_URL: 'http://localhost:1234'
+        ports:
+            - '3001:3001'
+        depends_on:
+            mariadb:
+                condition: service_healthy
+        volumes:
+            - ./backend:/app
+            - /app/node_modules
+        networks:
+            - botak-network
+        command: npm run dev
+        # Health check for backend
+        healthcheck:
+            test: ['CMD', 'curl', '-f', 'http://localhost:3001/api/health']
+            timeout: 10s
+            retries: 3
+            start_period: 30s
+            interval: 10s
+
+    # React Frontend (Optional - for production)
+    # frontend:
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile
+    #   container_name: botak-frontend
+    #   restart: unless-stopped
+    #   ports:
+    #     - "5173:5173"
+    #   depends_on:
+    #     - backend
+    #   networks:
+    #     - botak-network
+    #   environment:
+    #     VITE_API_URL: "http://backend:3001/api"
+
+volumes:
+    mariadb_data:
+        driver: local
+
+networks:
+    botak-network:
+        driver: bridge

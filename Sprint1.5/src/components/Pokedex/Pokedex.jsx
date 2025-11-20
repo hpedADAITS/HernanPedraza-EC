@@ -18,6 +18,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import CatchingPokemonIcon from "@mui/icons-material/CatchingPokemon";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useTranslation } from "../../hooks/useTranslation";
+import Loading from "../Shared/Loading";
+import ErrorBlock from "../Shared/ErrorBlock";
 
 const Pokedex = () => {
   const { t } = useTranslation();
@@ -355,21 +357,9 @@ const Pokedex = () => {
       {/* Content */}
       <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>
         {loading ? (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <CircularProgress sx={{ mb: 2 }} />
-            <Typography variant="h6" color="text.secondary">
-              {t('loadingPokemon')}
-            </Typography>
-          </Box>
+          <Loading message={t('loadingPokemon')} />
         ) : error ? (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <Typography variant="h6" color="error" sx={{ mb: 2 }}>
-              {error}
-            </Typography>
-            <Button variant="outlined" onClick={fetchPokemon}>
-              Try Again
-            </Button>
-          </Box>
+          <ErrorBlock message={error} onRetry={fetchPokemon} />
         ) : (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>

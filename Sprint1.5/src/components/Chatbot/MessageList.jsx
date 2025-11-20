@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
+import StopIcon from "@mui/icons-material/Stop";
 import UserMessageBubble from "./Bubbles/UserMessageBubble";
 import BotMessageBubble from "./Bubbles/BotMessageBubble";
 
-export default function MessageList({ messages }) {
+export default function MessageList({ messages, isGenerating, onStop }) {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -28,6 +29,20 @@ export default function MessageList({ messages }) {
         ) : (
           <BotMessageBubble key={index} message={msg} />
         )
+      )}
+      {isGenerating && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            startIcon={<StopIcon />}
+            onClick={onStop}
+            sx={{ textTransform: "none" }}
+          >
+            Stop
+          </Button>
+        </Box>
       )}
       <div ref={chatEndRef} />
     </Box>

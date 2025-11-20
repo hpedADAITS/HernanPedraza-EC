@@ -26,6 +26,8 @@ import {
   Divider,
   Fab,
 } from "@mui/material";
+import Loading from "../Shared/Loading";
+import ErrorBlock from "../Shared/ErrorBlock";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
@@ -68,12 +70,10 @@ const ConversationsView = ({ currentUser, onLogout }) => {
     try {
       setLoading(true);
       setError(null);
-      // Simulate async operation (in real app, this might be an API call)
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const data = conversationManager.getAllConversations();
+      const data = await conversationManager.getAllConversations(currentUser);
       setConversations(data);
     } catch (err) {
-      setError("Failed to load conversations. Please try again.");
+      setError(err.message || "Failed to load conversations. Please try again.");
       console.error("Error loading conversations:", err);
     } finally {
       setLoading(false);
@@ -90,12 +90,12 @@ const ConversationsView = ({ currentUser, onLogout }) => {
 
   const handleNewConversation = async () => {
     try {
-      const conv = conversationManager.createConversation(newTitle || undefined);
-      await loadConversations();
+      const conv = await conversationManager.createConversation(currentUser, newTitle || undefined);
       setNewTitle("");
       setOpenNewDialog(false);
       navigate(`/conversation/${conv.id}`);
     } catch (err) {
+      setError(err.message || "Failed to create conversation");
       console.error("Error creating conversation:", err);
     }
   };
@@ -110,23 +110,33 @@ const ConversationsView = ({ currentUser, onLogout }) => {
     setOpenDeleteDialog(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deleteId) {
-      conversationManager.deleteConversation(deleteId);
-      loadConversations();
-      setDeleteId(null);
+      try {
+        await conversationManager.deleteConversation(deleteId);
+        await loadConversations();
+        setDeleteId(null);
+      } catch (err) {
+        setError(err.message || "Failed to delete conversation");
+        console.error("Error deleting conversation:", err);
+      }
     }
     setOpenDeleteDialog(false);
   };
 
-  const handleShareClick = (e, id) => {
+  const handleShareClick = async (e, id) => {
     e.stopPropagation();
-    const token = conversationManager.generateShareToken(id);
-    if (token) {
-      const link = `${window.location.origin}/share/${token}`;
-      setShareLink(link);
-      setOpenShareDialog(true);
-      setCopied(false);
+    try {
+      const token = await conversationManager.generateShareToken(id);
+      if (token) {
+        const link = `${window.location.origin}/share/${token}`;
+        setShareLink(link);
+        setOpenShareDialog(true);
+        setCopied(false);
+      }
+    } catch (err) {
+      setError(err.message || "Failed to generate share link");
+      console.error("Error generating share token:", err);
     }
   };
 
@@ -323,20 +333,9 @@ const ConversationsView = ({ currentUser, onLogout }) => {
         data-preserve-scroll="conversations-list"
       >
         {loading ? (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <Typography variant="h6" color="text.secondary">
-            {t('loadingConversations')}
-            </Typography>
-          </Box>
+          <Loading message={t('loadingConversations')} />
         ) : error ? (
-          <Box sx={{ textAlign: "center", py: 8 }}>
-            <Typography variant="h6" color="error" sx={{ mb: 2 }}>
-              {error}
-            </Typography>
-            <Button variant="outlined" onClick={loadConversations}>
-            {t('tryAgain')}
-            </Button>
-          </Box>
+          <ErrorBlock message={error} onRetry={loadConversations} />
         ) : filteredAndSortedConversations.length === 0 ? (
           <Box sx={{ textAlign: "center", py: 4 }}>
             <Typography color="text.secondary" sx={{ mb: 2 }}>

@@ -11,3 +11,5 @@ npm-debug.log*
 Thumbs.db
 .vscode/
 *.swp
+START_HERE.md
+TESTING_CHECKLIST_ASYNC.md

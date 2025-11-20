@@ -15,17 +15,27 @@ export default function ChatWindow({ conversationId, onBackToHistory }) {
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [showLmStudioModal, setShowLmStudioModal] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const messageInputRef = useRef(null);
+  const abortControllerRef = useRef(null);
   const { setFocus } = useHistoryState();
   const { temperature } = useTemperature();
 
   useEffect(() => {
-    if (conversationId) {
-      const conversation = conversationManager.getConversation(conversationId);
-      if (conversation) {
-        setMessages(conversation.messages);
+    const loadMessages = async () => {
+      if (conversationId) {
+        try {
+          const messages = await conversationManager.getMessages(conversationId);
+          setMessages(messages);
+        } catch (err) {
+          console.error("Error loading messages:", err);
+          setMessages([]);
+        }
       }
-    }
+    };
+
+    loadMessages();
+    
     if (!sessionStorage.getItem("lmstudioModalShown")) {
       setShowLmStudioModal(true);
     }
@@ -41,6 +51,15 @@ export default function ChatWindow({ conversationId, onBackToHistory }) {
     sessionStorage.setItem("lmstudioModalShown", "true");
   };
 
+  const handleStopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsGenerating(false);
+    setLoading(false);
+  };
+
   const handleSend = async () => {
     const trimmedQuery = input.trim();
     if (!trimmedQuery) return;
@@ -53,9 +72,14 @@ export default function ChatWindow({ conversationId, onBackToHistory }) {
     setMessages(messagesWithUser);
     setInput("");
     setLoading(true);
+    setIsGenerating(true);
+    abortControllerRef.current = new AbortController();
 
+    // Save user message to database
     if (conversationId) {
-      conversationManager.updateMessages(conversationId, messagesWithUser);
+      await conversationManager.addMessage(conversationId, "user", trimmedQuery).catch(err => 
+        console.error("Error saving user message:", err)
+      );
     }
 
     try {
@@ -85,21 +109,42 @@ export default function ChatWindow({ conversationId, onBackToHistory }) {
         botReply,
       ];
       setMessages(updatedMessages);
-      if (conversationId) {
-        conversationManager.updateMessages(conversationId, updatedMessages);
+       
+       // Save bot response to database
+       if (conversationId) {
+         await conversationManager.addMessage(conversationId, "bot", text).catch(err => 
+           console.error("Error saving bot response:", err)
+         );
+       }
+      } catch (error) {
+       if (error.name === "AbortError") {
+         const lastMessage = messagesWithUser[messagesWithUser.length - 1];
+         const stoppedMessages = [
+           ...messagesWithUser.filter((m) => m.text !== "🤖 Bot is typing..."),
+         ];
+         if (lastMessage?.text !== "🤖 Bot is typing...") {
+           stoppedMessages.push(lastMessage);
+         }
+         setMessages(stoppedMessages);
+       } else {
+         const errorMessages = [
+           ...messagesWithUser.filter((m) => m.text !== "🤖 Bot is typing..."),
+           { type: "bot", text: `❌ Error: ${error.message}` },
+         ];
+         setMessages(errorMessages);
+         
+         // Save error message to database
+         if (conversationId) {
+           await conversationManager.addMessage(conversationId, "bot", `❌ Error: ${error.message}`).catch(err => 
+             console.error("Error saving error message:", err)
+           );
+         }
+       }
+      } finally {
+       setLoading(false);
+       setIsGenerating(false);
+       abortControllerRef.current = null;
       }
-    } catch (error) {
-      const errorMessages = [
-        ...messagesWithUser.filter((m) => m.text !== "🤖 Bot is typing..."),
-        { type: "bot", text: `❌ Error: ${error.message}` },
-      ];
-      setMessages(errorMessages);
-      if (conversationId) {
-        conversationManager.updateMessages(conversationId, errorMessages);
-      }
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -107,7 +152,7 @@ export default function ChatWindow({ conversationId, onBackToHistory }) {
       sx={{ display: "flex", flexDirection: "column", height: "100%", position: "relative", overflow: "hidden" }}
       data-preserve-scroll="message-list"
     >
-      <MessageList messages={messages} />
+      <MessageList messages={messages} isGenerating={isGenerating} onStop={handleStopGeneration} />
       <MessageInput
         ref={messageInputRef}
         inputId="message-input"

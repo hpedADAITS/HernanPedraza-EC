@@ -3,38 +3,44 @@ import { useParams } from 'react-router-dom';
 import { Box, AppBar, Toolbar, Typography, Chip } from '@mui/material';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import MessageList from '../Chatbot/MessageList';
+import Loading from './Loading';
+import ErrorBlock from './ErrorBlock';
 import { conversationManager } from '../../services/conversationManager';
 import ConversationNotFound from '../Error/ConversationNotFound';
 
 const SHARED_VIEW_LABEL = 'Shared View';
 const READ_ONLY_MESSAGE = 'This is a read-only shared conversation.';
-const LOADING_MESSAGE = 'Loading...';
 
 const SharedConversationView = () => {
     const { shareToken } = useParams();
     const [conversation, setConversation] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const conv =
-            conversationManager.getConversationByShareToken(shareToken);
-        setConversation(conv);
-        setLoading(false);
+        const loadSharedConversation = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const conv = await conversationManager.getConversationByShareToken(shareToken);
+                setConversation(conv);
+            } catch (err) {
+                console.error("Error loading shared conversation:", err);
+                setError(err.message || "Failed to load shared conversation");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadSharedConversation();
     }, [shareToken]);
 
     if (loading) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100dvh',
-                }}
-            >
-                <Typography>{LOADING_MESSAGE}</Typography>
-            </Box>
-        );
+        return <Loading message="Loading shared conversation..." />;
+    }
+
+    if (error) {
+        return <ErrorBlock message={error} onRetry={() => window.location.reload()} />;
     }
 
     if (!conversation) {
