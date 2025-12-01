@@ -1,0 +1,85 @@
+@startuml System Architecture - Documentation Generator
+
+!define COMPONENT_BG #E1F5FF
+!define SERVICE_BG #FFF3E0
+!define DATA_BG #F3E5F5
+!define EXTERNAL_BG #E8F5E9
+
+title System Architecture: Automatic Documentation Generator for Java Projects
+
+package "Frontend (React + TailwindCSS)" <<component>> #E1F5FF {
+    [ProjectSelector]
+    [GenerateButton]
+    [ResultsView]
+    [HistoryView]
+    [LoadingState]
+}
+
+package "Backend (Node.js Express)" <<component>> #FFF3E0 {
+    package "Controllers" {
+        [AnalyzeController]
+    }
+    
+    package "Services" {
+        [AIService]
+        [PlantUmlGenerator]
+        [MarkdownBuilder]
+        [PDFConverter]
+    }
+    
+    package "Analyzers" {
+        [JavaParser]
+        [FileTreeAnalyzer]
+    }
+    
+    package "Utils" {
+        [ChildProcessExecutor]
+        [SchemaValidator]
+    }
+}
+
+package "External Systems" <<component>> #E8F5E9 {
+    [LMStudio\n(Local LLM)]
+    [PlantUML\n(CLI Renderer)]
+    [Pandoc\n(PDF Converter)]
+}
+
+package "Data Storage" <<component>> #F3E5F5 {
+    [FileSystem\n/media/docs]
+    [DiagramOutput\n/diagrams]
+    [ExecutionHistory\nhistory.json]
+}
+
+' Frontend connections
+ProjectSelector --> AnalyzeController : POST /api/analyze
+GenerateButton --> AnalyzeController : Triggers analysis
+ResultsView --> MarkdownBuilder : Displays results
+HistoryView --> ExecutionHistory : Fetches history
+LoadingState --> GenerateButton : Shows UI state
+
+' Backend workflow
+AnalyzeController --> FileTreeAnalyzer : Parse structure
+AnalyzeController --> JavaParser : Extract classes/methods
+AnalyzeController --> AIService : Orchestrate AI calls
+
+' AI integration
+AIService --> LMStudio : Tool call (IMPLEMENTER)
+AIService --> LMStudio : Text expansion (EXPANDER)
+JavaParser --> ChildProcessExecutor : Execute JS_ls.js
+FileTreeAnalyzer --> ChildProcessExecutor : Execute tree.js
+
+' Document generation
+AnalyzeController --> PlantUmlGenerator : Generate UML
+PlantUmlGenerator --> PlantUML : Render PNG
+AnalyzeController --> MarkdownBuilder : Build docs
+MarkdownBuilder --> PDFConverter : Convert to PDF
+PDFConverter --> Pandoc : CLI execution
+
+' Storage
+PlantUmlGenerator --> DiagramOutput : Save .puml files
+PlantUML --> DiagramOutput : Save .png files
+MarkdownBuilder --> FileSystem : Save .md files
+PDFConverter --> FileSystem : Save .pdf files
+AnalyzeController --> ExecutionHistory : Log execution
+
+@enduml

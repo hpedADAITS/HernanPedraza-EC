@@ -1,0 +1,245 @@
+@startuml File Structure and Output Hierarchy
+
+!define FOLDER_BG #FFF9C4
+!define CODE_BG #BBDEFB
+!define OUTPUT_BG #E1F5FF
+!define CONFIG_BG #F3E5F5
+
+title Project Directory Structure and Output Artifact Hierarchy
+
+package "Sprint1.6 (Root)" <<folder>> #FFF9C4 {
+    
+    package "backend/" <<folder>> #FFF9C4 {
+        
+        package "controllers/" <<folder>> #BBDEFB {
+            file "analyzeController.ts" <<CODE_BG>>
+            note on the right
+              - POST /api/analyze route handler
+              - Orchestrates entire analysis pipeline
+              - Validates input and coordinates services
+            end note
+        }
+        
+        package "services/" <<folder>> #BBDEFB {
+            file "aiService.ts" <<CODE_BG>>
+            note on the right
+              - Calls IMPLEMENTER for parsing
+              - Calls EXPANDER for enrichment
+              - Manages LMStudio interaction
+              - Token budgeting
+            end note
+            
+            file "plantUmlGenerator.ts" <<CODE_BG>>
+            note on the right
+              - Generates .puml from class data
+              - Builds diagram structure
+              - Handles dependencies
+            end note
+            
+            file "markdownBuilder.ts" <<CODE_BG>>
+            note on the right
+              - Assembles final Markdown
+              - Formats classes, methods, packages
+              - References diagrams
+            end note
+            
+            file "pdfConverter.ts" <<CODE_BG>>
+            note on the right
+              - Converts .md to .pdf
+              - Uses Pandoc CLI
+              - Applies styling
+            end note
+        }
+        
+        package "analyzers/" <<folder>> #BBDEFB {
+            file "javaParser.ts" <<CODE_BG>>
+            note on the right
+              - Parses Java source files
+              - Extracts classes, methods, fields
+              - Builds AST representation
+            end note
+            
+            file "fileTreeAnalyzer.ts" <<CODE_BG>>
+            note on the right
+              - Builds directory hierarchy
+              - Extracts file metadata
+              - Counts lines, bytes, tokens
+            end note
+        }
+        
+        package "utils/" <<folder>> #BBDEFB {
+            file "childProcessExecutor.ts" <<CODE_BG>>
+            note on the right
+              - Executes JS_ls.js
+              - Executes tree.js
+              - Runs PlantUML renderer
+              - Handles error/exit codes
+            end note
+            
+            file "schemaValidator.ts" <<CODE_BG>>
+            note on the right
+              - Validates AI tool call responses
+              - Checks JSON schema compliance
+              - Returns validation errors
+            end note
+        }
+        
+        package "config/" <<folder>> #F3E5F5 {
+            file "environment.ts" <<CONFIG_BG>>
+            note on the right
+              - LMS_MODEL_PATH
+              - NODE_ENV
+              - API ports
+              - File size limits
+            end note
+        }
+        
+        file "server.ts" <<CODE_BG>>
+        note on the right
+          - Express app initialization
+          - Route setup
+          - Error handlers
+        end note
+    }
+    
+    package "frontend/" <<folder>> #FFF9C4 {
+        
+        package "components/" <<folder>> #BBDEFB {
+            file "ProjectSelector.tsx" <<CODE_BG>>
+            file "GenerateButton.tsx" <<CODE_BG>>
+            file "ResultsView.tsx" <<CODE_BG>>
+            file "HistoryView.tsx" <<CODE_BG>>
+            file "LoadingState.tsx" <<CODE_BG>>
+        }
+        
+        file "App.tsx" <<CODE_BG>>
+        note on the right
+          - Main component
+          - State management (hooks)
+          - Layout orchestration
+        end note
+        
+        file "routes.ts" <<CODE_BG>>
+        file "main.tsx" <<CODE_BG>>
+        file "index.css" <<CODE_BG>>
+    }
+    
+    package "media/" <<folder>> #E1F5FF {
+        
+        package "docs/" <<folder>> #E1F5FF {
+            file "index.md" <<OUTPUT_BG>>
+            note on the right
+              - Master documentation index
+              - Links all generated docs
+              - Project overview
+            end note
+            
+            file "Project_Analysis.md" <<OUTPUT_BG>>
+            file "Package_Overview.md" <<OUTPUT_BG>>
+            file "Classes_Reference.md" <<OUTPUT_BG>>
+            
+            file "*.pdf" <<OUTPUT_BG>>
+            note on the right
+              - Converted from Markdown
+              - One per analysis
+              - Downloadable
+            end note
+        }
+        
+        package "logs/" <<folder>> #E1F5FF {
+            file "execution-log-TIMESTAMP.json" <<OUTPUT_BG>>
+            note on the right
+              - Detailed execution log
+              - AI responses
+              - Errors and warnings
+            end note
+        }
+        
+        file "history.json" <<OUTPUT_BG>>
+        note on the right
+          - JSON array of past executions
+          - Timestamps, statuses, paths
+          - Used by HistoryView component
+        end note
+    }
+    
+    package "diagrams/" <<folder>> #E1F5FF {
+        file "*.puml" <<OUTPUT_BG>>
+        note on the right
+          - PlantUML source files
+          - One per class or package
+          - Generated from class relationships
+        end note
+        
+        file "*.png" <<OUTPUT_BG>>
+        note on the right
+          - Rendered diagrams
+          - Generated by PlantUML CLI
+          - Referenced in Markdown
+        end note
+    }
+    
+    file "Setup.ps1" <<CONFIG_BG>>
+    note on the right
+      - PowerShell initialization
+      - Checks Node.js, Docker, LMStudio
+      - Sets environment variables
+    end note
+    
+    file "docker-compose.yml" <<CONFIG_BG>>
+    note on the right
+      - Backend service definition
+      - Frontend service definition
+      - Volume mappings
+      - Environment setup
+    end note
+    
+    package "backend/" {
+        file "Dockerfile" <<CONFIG_BG>>
+    }
+    
+    package "frontend/" {
+        file "Dockerfile" <<CONFIG_BG>>
+    }
+    
+    file ".gitignore" <<CONFIG_BG>>
+    file "package.json" <<CONFIG_BG>>
+    file "README.md" <<CONFIG_BG>>
+}
+
+package "External Tools" <<folder>> #F3E5F5 {
+    file "LMStudio\n(OpenAI API)" <<CONFIG_BG>>
+    file "PlantUML\n(CLI Renderer)" <<CONFIG_BG>>
+    file "Pandoc\n(PDF Converter)" <<CONFIG_BG>>
+}
+
+note bottom of "Sprint1.6 (Root)"
+  Output Artifacts Generated Per Execution:
+  
+  1. Markdown Files (.md)
+     - Full documentation with structured sections
+     - Location: /media/docs/
+     - Includes class hierarchies, method docs, relationships
+  
+  2. PlantUML Diagrams (.puml)
+     - Source format for UML diagrams
+     - Location: /diagrams/
+     - One per class or package
+  
+  3. Rendered Diagrams (.png)
+     - PNG images of diagrams
+     - Location: /diagrams/
+     - Embedded in Markdown
+  
+  4. PDF Files (.pdf)
+     - Converted from Markdown
+     - Location: /media/docs/
+     - Ready for download
+  
+  5. Execution History (history.json)
+     - JSON record of all analyses
+     - Timestamp, status, paths
+     - Used by frontend for history view
+end note
+
+@enduml

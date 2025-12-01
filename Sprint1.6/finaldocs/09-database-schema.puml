@@ -1,0 +1,413 @@
+@startuml Database Schema and Data Models
+
+!define ENTITY_BG #BBDEFB
+!define PRIMARY_BG #E1F5FF
+!define RELATION_BG #FFE0B2
+
+title Data Models and Persistence Schema
+
+package "Persistent Data Store (Filesystem + JSON)" <<component>> {
+    
+    entity "history.json" <<PRIMARY_BG>> {
+        * id : UUID
+        --
+        projectPath : string
+        projectName : string
+        timestamp : ISO 8601
+        status : 'success' | 'error'
+        processingTimeMs : number
+        resultsUrl : string
+        errorMessage? : string
+    }
+    
+    note on the right of "history.json"
+      One entry per analysis execution
+      Location: /media/history.json
+      Format: JSON array
+      Sorted: most recent first
+    end note
+    
+    entity "execution-log-{timestamp}.json" <<PRIMARY_BG>> {
+        * executionId : UUID
+        --
+        projectPath : string
+        startTime : ISO 8601
+        endTime : ISO 8601
+        status : 'success' | 'error'
+        
+        phases : [
+          {
+            phaseName : string,
+            startTime : ISO 8601,
+            endTime : ISO 8601,
+            status : 'success' | 'error',
+            details : object
+          }
+        ]
+        
+        aiInteractions : [
+          {
+            model : 'IMPLEMENTER' | 'EXPANDER',
+            prompt : string,
+            response : string,
+            tokens : { input, output, total }
+          }
+        ]
+        
+        errors : [
+          {
+            timestamp : ISO 8601,
+            phase : string,
+            message : string,
+            stack? : string
+          }
+        ]
+        
+        metadata : {
+          fileCount : number,
+          totalTokensProcessed : number,
+          lmsAvgResponseTimeMs : number
+        }
+    }
+    
+    note on the right of "execution-log-{timestamp}.json"
+      Detailed execution log
+      Location: /media/logs/
+      One file per execution
+      For debugging and analytics
+    end note
+}
+
+package "In-Memory Data Structures" <<component>> {
+    
+    entity "FileNode Tree" <<ENTITY_BG>> {
+        * id : string (path)
+        --
+        kind : 'file' | 'dir'
+        name : string
+        path : string (relative)
+        children : FileNode[]
+        metadata : {
+          lineCount? : number,
+          byteSize? : number,
+          tokenCount? : number
+        }
+    }
+    
+    note on the right of "FileNode Tree"
+      Hierarchical file structure
+      Built on each analysis
+      Used for UI tree view
+      Contains metadata for filtering
+    end note
+    
+    entity "DocumentInfo" <<ENTITY_BG>> {
+        * path : string
+        --
+        language : 'java' | 'ts' | 'js'
+        lineCount : number
+        byteSize : number
+        tokenCount : number
+    }
+    
+    note on the right of "DocumentInfo"
+      Per-file metadata
+      Computed once during scanning
+      Used for token budgeting
+    end note
+    
+    entity "JavaClass" <<ENTITY_BG>> {
+        * id : string
+        --
+        name : string
+        package : string
+        filePath : string
+        sourceCode : string
+        startLine : number
+        endLine : number
+        
+        fields : FieldInfo[]
+        methods : MethodInfo[]
+        constructors : MethodInfo[]
+        
+        superclass? : string
+        interfaces : string[]
+        annotations : string[]
+        modifiers : {
+          isPublic : boolean,
+          isAbstract : boolean,
+          isFinal : boolean,
+          isStatic : boolean
+        }
+    }
+    
+    note on the right of "JavaClass"
+      Extracted from parsed Java files
+      Contains complete structure
+      Used for doc generation
+    end note
+    
+    entity "MethodInfo" <<ENTITY_BG>> {
+        * id : string
+        --
+        name : string
+        signature : string
+        returnType : string
+        
+        parameters : [
+          {
+            name : string,
+            type : string,
+            annotations? : string[]
+          }
+        ]
+        
+        throws : string[]
+        modifiers : {
+          visibility : 'public' | 'protected' | 'private',
+          isStatic : boolean,
+          isAbstract : boolean,
+          isSynchronized : boolean
+        }
+        
+        startLine : number
+        endLine : number
+        code : string
+    }
+    
+    note on the right of "MethodInfo"
+      Full method signature
+      Complete implementation code
+      Parameter details
+      Throws clauses
+    end note
+    
+    entity "FieldInfo" <<ENTITY_BG>> {
+        * id : string
+        --
+        name : string
+        type : string
+        
+        modifiers : {
+          visibility : 'public' | 'protected' | 'private',
+          isStatic : boolean,
+          isFinal : boolean
+        }
+        
+        initializer? : string
+        annotations? : string[]
+    }
+    
+    note on the right of "FieldInfo"
+      Field declaration details
+      Type information
+      Modifiers
+    end note
+    
+    entity "RagChunk" <<ENTITY_BG>> {
+        * id : string
+        --
+        text : string (≤ 2000 tokens)
+        
+        metadata : {
+          docPath : string,
+          language : 'java' | 'ts' | 'js',
+          sectionTitle : string,
+          indexInSection : number,
+          tokenCount : number,
+          embedding? : number[] (vector)
+        }
+    }
+    
+    note on the right of "RagChunk"
+      Token-budgeted document chunks
+      For RAG context retrieval
+      Stored with embeddings (optional)
+      For semantic search
+    end note
+    
+    entity "RagIndex" <<ENTITY_BG>> {
+        * indexId : string
+        --
+        chunks : RagChunk[]
+        
+        vectorDb? : {
+          chunkId : string,
+          embedding : number[] (768-dim),
+          score? : number
+        }
+        
+        metadata : {
+          totalChunks : number,
+          totalTokens : number,
+          createdAt : ISO 8601,
+          projectPath : string
+        }
+    }
+    
+    note on the right of "RagIndex"
+      Complete RAG index for project
+      Built once per analysis
+      Used for context retrieval
+      Optional vector database
+    end note
+}
+
+package "Output Artifacts" <<component>> {
+    
+    entity "Generated .md files" <<PRIMARY_BG>> {
+        * filename : string
+        --
+        format : Markdown
+        content : string
+        
+        sections : [
+          'Overview',
+          'Package Details',
+          'Class Hierarchy',
+          'Method Documentation',
+          'Diagrams',
+          'Dependencies',
+          'Recommendations'
+        ]
+    }
+    
+    note on the right of "Generated .md files"
+      Location: /media/docs/
+      One per analysis + per-class
+      Markdown formatted
+      Embedded images
+    end note
+    
+    entity "Generated .puml files" <<PRIMARY_BG>> {
+        * filename : string
+        --
+        format : PlantUML
+        content : string (valid @startuml syntax)
+        
+        diagramTypes : [
+          'class',
+          'package',
+          'sequence'
+        ]
+    }
+    
+    note on the right of "Generated .puml files"
+      Location: /diagrams/
+      PlantUML source format
+      One per class/package
+      Rendered to PNG
+    end note
+    
+    entity "Rendered .png files" <<PRIMARY_BG>> {
+        * filename : string
+        --
+        format : PNG image
+        sourceFile : string (corresponding .puml)
+        width : number (pixels)
+        height : number (pixels)
+    }
+    
+    note on the right of "Rendered .png files"
+      Location: /diagrams/
+      Generated by PlantUML CLI
+      Referenced in Markdown
+      Cached for reuse
+    end note
+    
+    entity "Generated .pdf files" <<PRIMARY_BG>> {
+        * filename : string
+        --
+        format : PDF
+        sourceFile : string (corresponding .md)
+        pageCount : number
+    }
+    
+    note on the right of "Generated .pdf files"
+      Location: /media/docs/
+      Converted from Markdown
+      Using Pandoc
+      Downloadable by user
+    end note
+}
+
+package "Relationships and Constraints" <<component>> {
+    
+    entity "Dependency Graph" {
+        * source : string (class name)
+        --
+        target : string (class name)
+        type : 'extends' | 'implements' | 'uses' | 'returns'
+    }
+    
+    note on the right of "Dependency Graph"
+      Extracted from class analysis
+      Used for diagram generation
+      Shows package dependencies
+    end note
+    
+    entity "Package Hierarchy" {
+        * packageName : string
+        --
+        classes : string[]
+        parentPackage? : string
+        subpackages : string[]
+    }
+    
+    note on the right of "Package Hierarchy"
+      Built from class package names
+      Used for navigation
+      Used for documentation structure
+    end note
+}
+
+' Relationships
+"FileNode Tree" --> "DocumentInfo" : contains
+"DocumentInfo" --> "JavaClass" : represents
+"JavaClass" --> "MethodInfo" : contains
+"JavaClass" --> "FieldInfo" : contains
+"JavaClass" --> "Dependency Graph" : participates in
+"RagChunk" --> "RagIndex" : aggregated by
+"JavaClass" --> "Generated .puml files" : generates
+"Generated .puml files" --> "Rendered .png files" : rendered to
+"JavaClass" --> "Generated .md files" : documented in
+"Generated .md files" --> "Generated .pdf files" : converted to
+"history.json" --> "Generated .md files" : references
+"history.json" --> "Generated .pdf files" : references
+"JavaClass" --> "Package Hierarchy" : belongs to
+
+note bottom
+  Data Flow Summary:
+  
+  1. FileNode Tree
+     ├─ Hierarchical file structure
+     └─ Contains DocumentInfo metadata
+  
+  2. DocumentInfo
+     ├─ Per-file metadata (lines, bytes, tokens)
+     └─ Used for token budgeting
+  
+  3. JavaClass (main unit of analysis)
+     ├─ Extracted from Java source
+     ├─ Contains methods and fields
+     ├─ Used to generate diagrams (.puml)
+     ├─ Used to generate documentation (.md)
+     └─ Included in package hierarchy
+  
+  4. RagIndex (for context retrieval)
+     ├─ Built from chunked files
+     ├─ Queried for semantic context
+     └─ Provides top-k relevant snippets
+  
+  5. Output Artifacts
+     ├─ .puml (PlantUML source)
+     ├─ .png (Rendered diagrams)
+     ├─ .md (Markdown documentation)
+     └─ .pdf (Converted from Markdown)
+  
+  6. Execution Tracking
+     ├─ history.json (execution summary)
+     └─ execution-log-*.json (detailed logs)
+end note
+
+@enduml
