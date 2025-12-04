@@ -1,0 +1,92 @@
+@startuml System_Architecture
+!theme plain
+scale 1.5
+
+title Arquitectura del Sistema: Generador de Documentación Java
+
+package "Capa de Cliente" {
+  component [Navegador Web\n(Frontend React)] as browser
+}
+
+package "Puerta de Enlace de API" {
+  component [Servidor Express\n(Puerto 3000)] as expressServer
+}
+
+package "Capa de Lógica de Negocio" {
+  package "Controladores" {
+    component [Controlador\nAnalizar] as analyzeCtrl
+    component [Controlador\nPDF] as pdfCtrl
+    component [Controlador\nDiagrama] as diagramCtrl
+    component [Controlador\nModelo] as modelCtrl
+    component [Controlador\nLimpieza] as cleanupCtrl
+  }
+  
+  package "Servicios" {
+    component [Servicio\nAnalizador Java] as javaParser
+    component [Analizador\nÁrbol de Archivos] as fileAnalyzer
+    component [Constructor\nMarkdown] as markdownBuilder
+    component [Servicio\nIA] as aiService
+    component [Generador\nPlantUML] as plantUmlGen
+    component [Convertidor\nPDF] as pdfConverter
+    component [Renderizador\nPlantUML] as plantUmlRender
+  }
+  
+  package "Utilidades" {
+    component [Tokenizador] as tokenizer
+    component [Ejecutor de\nProceso Secundario] as executor
+  }
+}
+
+package "Servicios Externos" {
+  component [LMStudio\n(IA Local)\nPuerto 1234] as lmstudio
+  component [Servidor PlantUML\nPuerto 8080] as plantuml
+  component [API Pandoc\n(Docker)\nPuerto 3001] as pandoc
+  component [CLI Git\n(Clonación de\nRepositorio)] as git
+}
+
+package "Capa de Almacenamiento" {
+  database [Sistema de Archivos\n./media] as filesystem
+  database [Caché en Memoria\n(Análisis)] as cache
+}
+
+browser --> expressServer : Solicitudes HTTP
+
+expressServer --> analyzeCtrl : Rutas
+expressServer --> pdfCtrl : Rutas
+expressServer --> diagramCtrl : Rutas
+expressServer --> modelCtrl : Rutas
+expressServer --> cleanupCtrl : Rutas
+
+analyzeCtrl --> javaParser : Analizar Archivos
+analyzeCtrl --> fileAnalyzer : Analizar Estructura
+analyzeCtrl --> markdownBuilder : Construir Docs
+analyzeCtrl --> aiService : Enriquecer Contenido
+analyzeCtrl --> plantUmlGen : Generar Diagramas
+analyzeCtrl --> pdfConverter : Convertir PDF
+analyzeCtrl --> cache : Almacenar Resultados
+
+javaParser --> filesystem : Leer Archivos .java
+fileAnalyzer --> filesystem : Leer Archivos
+
+aiService --> lmstudio : API Chat Completion
+aiService --> tokenizer : Contar Tokens
+
+plantUmlGen --> plantUmlRender : Renderizar Diagramas
+plantUmlRender --> plantuml : Solicitud HTTP
+
+pdfConverter --> pandoc : HTTP POST\n/convert
+
+analyzeCtrl --> git : Clonar Repositorio
+
+pdfCtrl --> cache : Recuperar Markdown
+pdfCtrl --> pandoc : Convertir a PDF
+
+diagramCtrl --> plantuml : Renderizar PlantUML
+diagramCtrl --> cache : Caché Diagramas
+
+modelCtrl --> lmstudio : Gestión de Modelos
+
+cleanupCtrl --> filesystem : Eliminar Archivos
+cleanupCtrl --> cache : Limpiar Caché
+
+@enduml

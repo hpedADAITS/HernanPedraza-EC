@@ -1,4 +1,6 @@
 actual_implementation/
 node_modules/
 *.log
+*.logs
 .env
+AGENTS.md

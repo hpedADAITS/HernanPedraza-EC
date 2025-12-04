@@ -1,0 +1,102 @@
+@startuml Flujo de Datos: Pipeline de Proyecto Java a Documentación
+
+!define INPUT_BG #C8E6C9
+!define PROCESS_BG #BBDEFB
+!define OUTPUT_BG #FFE0B2
+!define AI_BG #F0F4C3
+
+title Pipeline de Flujo de Datos: Desde Repositorio Java a Documentación Completa
+
+' Fase de entrada
+database "Entrada del Usuario\n(Proyecto Java)" <<INPUT_BG>> {
+    file "Directorio Local\no Archivo ZIP"
+}
+
+database "Endpoint de Carga\nde Archivos" <<PROCESS_BG>> {
+    component "POST /api/analyze"
+}
+
+' Fase de análisis
+database "Fase de Análisis" <<PROCESS_BG>> {
+    component "FileTreeAnalyzer" #BBDEFB
+    component "JavaParser" #BBDEFB
+    component "ExtensionFinder\n(ext-finder.js)" #BBDEFB
+}
+
+' Extracción de datos
+database "Datos Extraídos" <<OUTPUT_BG>> {
+    component "Estructura de Árbol de Archivos"
+    component "Lista de Clases"
+    component "Firmas de Método"
+    component "Jerarquía de Paquetes"
+}
+
+' Fase de Procesamiento IA
+database "Procesamiento IA\n(LMStudio)" <<AI_BG>> {
+    component "IMPLEMENTER\n(Análisis de Tool-call)"
+    component "EXPANDER\n(Enriquecimiento de Texto)"
+}
+
+' Resultados intermedios
+database "Salida Intermedia" <<OUTPUT_BG>> {
+    component "Resultados JSON sin procesar"
+    component "Validación de Tool Call"
+    component "Datos Validados contra Esquema"
+}
+
+' Generación de documentación
+database "Generación de Documentación" <<PROCESS_BG>> {
+    component "PlantUML Generator" #BBDEFB
+    component "Markdown Builder" #BBDEFB
+    component "PDF Converter" #BBDEFB
+}
+
+' Salidas finales
+database "Salidas Finales" <<OUTPUT_BG>> {
+    file "/diagrams/*.puml"
+    file "/diagrams/*.png"
+    file "/media/docs/*.md"
+    file "/media/docs/*.pdf"
+}
+
+' Almacenamiento
+database "Almacenamiento Persistente" <<OUTPUT_BG>> {
+    file "history.json\n(Registro de Ejecución)"
+}
+
+' Conexiones de flujo
+"Directorio Local\no Archivo ZIP" --> "POST /api/analyze" : Usuario sube archivos
+"POST /api/analyze" --> "FileTreeAnalyzer" : Dispara análisis
+"FileTreeAnalyzer" --> "ExtensionFinder\n(ext-finder.js)" : Busca archivos Java
+"ExtensionFinder\n(ext-finder.js)" --> "JavaParser" : Proporciona rutas de archivo
+"JavaParser" --> "Estructura de Árbol de Archivos" : Construye jerarquía
+"JavaParser" --> "Lista de Clases" : Extrae clases
+"JavaParser" --> "Firmas de Método" : Extrae métodos
+"JavaParser" --> "Jerarquía de Paquetes" : Construye paquetes
+
+"Estructura de Árbol de Archivos" --> "IMPLEMENTER\n(Análisis de Tool-call)" : Proporciona contexto
+"Lista de Clases" --> "IMPLEMENTER\n(Análisis de Tool-call)" : Proporciona contexto
+"Firmas de Método" --> "IMPLEMENTER\n(Análisis de Tool-call)" : Proporciona contexto
+"Jerarquía de Paquetes" --> "IMPLEMENTER\n(Análisis de Tool-call)" : Proporciona contexto
+
+"IMPLEMENTER\n(Análisis de Tool-call)" --> "Resultados JSON sin procesar" : Devuelve estructuras
+"Resultados JSON sin procesar" --> "Validación de Tool Call" : Valida contra esquema
+"Validación de Tool Call" --> "EXPANDER\n(Enriquecimiento de Texto)" : Pasa datos validados
+"EXPANDER\n(Enriquecimiento de Texto)" --> "Datos Validados contra Esquema" : Descripciones enriquecidas
+
+"Estructura de Árbol de Archivos" --> "PlantUML Generator" : Relaciones de clases
+"Lista de Clases" --> "PlantUML Generator" : Nombres de clases
+"Firmas de Método" --> "PlantUML Generator" : Relaciones de métodos
+
+"Datos Validados contra Esquema" --> "Markdown Builder" : Contenido enriquecido
+"Datos Validados contra Esquema" --> "PlantUML Generator" : Diagramas de clases
+
+"PlantUML Generator" --> "/diagrams/*.puml" : Código fuente PlantUML
+"PlantUML Generator" --> "/diagrams/*.png" : Diagramas renderizados
+"Markdown Builder" --> "/media/docs/*.md" : Documentación
+"PDF Converter" --> "/media/docs/*.pdf" : PDFs descargables
+
+"/media/docs/*.md" --> "history.json\n(Registro de Ejecución)" : Rastrear ejecución
+"/media/docs/*.pdf" --> "history.json\n(Registro de Ejecución)" : Rastrear ejecución
+
+@enduml

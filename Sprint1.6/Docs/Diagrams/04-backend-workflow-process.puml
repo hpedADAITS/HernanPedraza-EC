@@ -1,0 +1,194 @@
+@startuml Flujo de Trabajo del Backend: Pipeline de Procesamiento
+
+!define START_BG #C8E6C9
+!define PROCESS_BG #BBDEFB
+!define DECISION_BG #FFF9C4
+!define END_BG #FFCCBC
+
+title Flujo de Trabajo de Procesamiento Backend: De Carga a Salida Final
+
+start
+
+:1. Recibir POST /api/analyze;
+note right
+  Validación de entrada:
+  - Ruta existe
+  - Contiene archivos .java
+  - Dentro de límites de tamaño (50 MB)
+end note
+
+if (¿Proyecto válido?) then (sí)
+else (no)
+  :Devolver error 400;
+  end
+endif
+
+:2. Construir estructura de árbol de archivos;
+note right
+  Proceso:
+  - Escanear directorio recursivamente
+  - Filtrar archivos .java
+  - Construir jerarquía
+  - Extraer metadatos (conteo de líneas, tamaño)
+end note
+
+:3. Ejecutar ext-finder.js;
+note right
+  Ejecución de proceso secundario:
+  - Buscar todos los archivos .java
+  - Devolver rutas
+  - Manejar errores
+end note
+
+if (¿Archivos Java encontrados?) then (sí)
+else (no)
+  :Devolver 404 - Sin archivos Java;
+  end
+endif
+
+:4. Analizar archivos extraídos con JavaParser;
+note right
+  Extracción:
+  - Definiciones de clase
+  - Firmas de método
+  - Campos y propiedades
+  - Estructura de paquete
+  - Anotaciones
+  - Cadenas de herencia
+end note
+
+:5. Construir RAG (Generación Aumentada por Recuperación);
+note right
+  Configuración RAG:
+  - Dividir archivos por presupuesto de tokens
+  - Construir embeddings vectoriales
+  - Indexar para búsqueda semántica
+  - Almacenar metadatos
+end note
+
+:6. Preparar prompt IMPLEMENTER;
+note right
+  Prompt presupuestado en tokens:
+  - Árbol de archivos (truncado)
+  - Lista de clases
+  - Firmas de métodos
+  - Instrucciones de tool call
+  - Entrada máx: ~3800 tokens
+end note
+
+:7. Llamar a LMStudio IMPLEMENTER;
+note right
+  HTTP POST a localhost:1234
+  - Modelo: IMPLEMENTER
+  - Formato tool call
+  - Temperatura: 0.2
+  - Salida máx: 800 tokens
+end note
+
+:8. Validar respuesta de tool call;
+note right
+  Validación de esquema:
+  - Verificar tool_call_id
+  - Verificar estructura de salida
+  - Coincidir campos esperados
+  - Validar JSON
+end note
+
+if (¿Tool call válido?) then (sí)
+else (no)
+  :Registrar error, reintentar o saltar;
+endif
+
+:9. Extraer fragmentos de enriquecimiento de RAG;
+note right
+  Consulta RAG:
+  - Consulta: nombres de clase + métodos
+  - Recuperar fragmentos top-k
+  - Ordenar por relevancia
+  - Preparar ventana de contexto
+end note
+
+:10. Preparar prompt EXPANDER;
+note right
+  Prompt de enriquecimiento:
+  - Plantilla markdown base
+  - Resultados validados de tool
+  - Fragmentos de contexto RAG
+  - Pistas de inferencia de comportamiento
+end note
+
+:11. Llamar a LMStudio EXPANDER;
+note right
+  HTTP POST a localhost:1234
+  - Modelo: EXPANDER
+  - Generación de texto
+  - Temperatura: 0.3
+  - Salida máx: 800 tokens
+end note
+
+:12. Construir Markdown final;
+note right
+  Ensamblaje:
+  - Descripción general de paquete
+  - Secciones de clase
+  - Detalles de método
+  - Relaciones
+  - Referencias de UML
+end note
+
+:13. Generar diagramas PlantUML;
+note right
+  Para cada clase:
+  - Extraer relaciones
+  - Construir sintaxis @startuml
+  - Incluir dependencias
+  - Guardar como .puml
+end note
+
+:14. Renderizar .puml a PNG;
+note right
+  Ejecutar PlantUML:
+  - Llamar plantuml.jar
+  - Entrada: archivos .puml
+  - Salida: imágenes .png
+  - Almacenar en /diagrams
+end note
+
+if (¿Renderizado exitoso?) then (sí)
+else (no)
+  :Usar diagrama de marcador de posición;
+endif
+
+:15. Convertir Markdown a PDF;
+note right
+  Ejecutar Pandoc:
+  - Entrada: archivo .md
+  - Plantilla: personalizada
+  - Salida: archivo .pdf
+  - Almacenar en /media/docs
+end note
+
+:16. Registrar ejecución en history.json;
+note right
+  Almacenar:
+  - Marca de tiempo
+  - Ruta del proyecto
+  - Estado (éxito/fallo)
+  - Rutas de salida
+  - Tiempo de procesamiento
+end note
+
+:17. Devolver resultados al Frontend;
+note right
+  Objeto de respuesta:
+  - markdown: contenido de texto
+  - pdfUrl: enlace de descarga
+  - diagrams: rutas de imagen
+  - status: éxito/error
+end note
+
+:18. Frontend recibe y muestra;
+
+stop
+
+@enduml

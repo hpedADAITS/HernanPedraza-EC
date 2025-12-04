@@ -1,0 +1,76 @@
+@startuml API_Endpoint_Schema
+!theme plain
+title Especificaciones de Endpoints de API y Contrato de Datos
+
+package "API REST Endpoints" {
+    component "POST /api/analyze" as POST_Analyze
+    component "GET /api/history" as GET_History
+    component "GET /api/docs/:id" as GET_Docs
+}
+
+note right of POST_Analyze
+  **Request Body:**
+  {
+    projectPath: string,
+    includeHistory: boolean (optional)
+  }
+  
+  **Response (200):**
+  {
+    status: 'success',
+    analysisId: string (UUID),
+    markdown: string,
+    pdfUrl: string,
+    diagrams: Array,
+    metadata: Object
+  }
+  
+  **Response (400/500):**
+  {
+    status: 'error',
+    error: string,
+    executionId?: string
+  }
+end note
+
+note right of GET_History
+  **Request:** No parameters
+  
+  **Response (200):**
+  {
+    status: 'success',
+    history: [
+      {
+        id: string,
+        projectPath: string,
+        timestamp: ISO 8601,
+        status: 'success'|'error',
+        processingTimeMs: number,
+        resultsUrl: string
+      }
+    ]
+  }
+end note
+
+note right of GET_Docs
+  **Path Parameters:**
+  - id: analysisId
+  
+  **Response (200):**
+  {
+    status: 'success',
+    analysisId: string,
+    markdown: string,
+    pdfUrl: string,
+    diagrams: Array,
+    metadata: Object
+  }
+  
+  **Response (404):**
+  {
+    status: 'error',
+    error: string
+  }
+end note
+
+@enduml

@@ -1,0 +1,167 @@
+@startuml Estructura de Archivos y Jerarquía de Salida
+
+!define FOLDER_BG #FFF9C4
+!define CODE_BG #BBDEFB
+!define OUTPUT_BG #E1F5FF
+!define CONFIG_BG #F3E5F5
+
+title Estructura de Directorio del Proyecto y Jerarquía de Artefactos de Salida
+
+package "Sprint1.6 (Raíz)" <<folder>> #FFF9C4 {
+    
+    package "backend/" <<folder>> #FFF9C4 {
+        
+        folder "controladores/" #BBDEFB {
+            file "analyzeController.ts" as analyzer
+        }
+        
+        note right of analyzer
+            Manejador de ruta POST /api/analyze
+            Orquesta pipeline completo de análisis
+            Valida entrada y coordina servicios
+        end note
+        
+        folder "servicios/" #BBDEFB {
+            file "aiService.ts" as aiSvc
+            file "plantUmlGenerator.ts" as pumlGen
+            file "markdownBuilder.ts" as mdBuilder
+            file "pdfConverter.ts" as pdfConv
+        }
+        
+        note right of aiSvc
+            Llama IMPLEMENTER para análisis
+            Llama EXPANDER para enriquecimiento
+            Gestiona interacción con LMStudio
+        end note
+        
+        note right of pumlGen
+            Genera .puml desde datos de clase
+            Construye estructura de diagrama
+            Maneja dependencias
+        end note
+        
+        note right of mdBuilder
+            Ensambla Markdown final
+            Formatea clases, métodos, paquetes
+            Referencias diagramas
+        end note
+        
+        note right of pdfConv
+            Convierte .md a .pdf
+            Usa CLI de Pandoc
+            Aplica estilos
+        end note
+        
+        folder "analizadores/" #BBDEFB {
+            file "javaParser.ts" as javaP
+            file "fileTreeAnalyzer.ts" as fileTree
+        }
+        
+        note right of javaP
+            Analiza archivos fuente Java
+            Extrae clases, métodos, campos
+            Construye representación AST
+        end note
+        
+        note right of fileTree
+            Construye jerarquía de directorios
+            Extrae metadatos de archivo
+            Cuenta líneas, bytes, tokens
+        end note
+        
+        folder "utilidades/" #BBDEFB {
+            file "childProcessExecutor.ts" as childExec
+            file "schemaValidator.ts" as schemaVal
+        }
+        
+        note right of childExec
+            Ejecuta JS_ls.js
+            Ejecuta tree.js
+            Ejecuta renderizador PlantUML
+            Maneja códigos de error/salida
+        end note
+        
+        note right of schemaVal
+            Valida respuestas de tool call de IA
+            Verifica compatibilidad de esquema JSON
+            Devuelve errores de validación
+        end note
+        
+        folder "config/" #F3E5F5 {
+            file "environment.ts"
+        }
+        
+        file "server.ts"
+    }
+    
+    package "frontend/" <<folder>> #FFF9C4 {
+        
+        folder "componentes/" #BBDEFB {
+            file "ProjectSelector.tsx"
+            file "GenerateButton.tsx"
+            file "ResultsView.tsx"
+            file "HistoryView.tsx"
+            file "LoadingState.tsx"
+        }
+        
+        file "App.tsx"
+        file "routes.ts"
+        file "main.tsx"
+        file "index.css"
+    }
+    
+    package "media/" <<folder>> #E1F5FF {
+        
+        folder "docs/" #E1F5FF {
+            file "index.md"
+            file "Project_Analysis.md"
+            file "Package_Overview.md"
+            file "Classes_Reference.md"
+            file "*.pdf"
+        }
+        
+        folder "logs/" #E1F5FF {
+            file "execution-log-TIMESTAMP.json"
+        }
+        
+        file "history.json"
+    }
+    
+    package "diagrams/" <<folder>> #E1F5FF {
+        file "*.puml"
+        file "*.png"
+    }
+    
+    file "Setup.ps1"
+    file "docker-compose.yml"
+    file ".gitignore"
+    file "package.json"
+    file "README.md"
+}
+
+package "Herramientas Externas" <<folder>> #F3E5F5 {
+    file "LMStudio\n(API OpenAI)"
+    file "PlantUML\n(Renderizador CLI)"
+    file "Pandoc\n(Convertidor PDF)"
+}
+
+note bottom
+  Artefactos de Salida Generados Por Ejecución:
+  
+  1. Archivos Markdown (.md)
+     - Documentación completa con secciones estructuradas
+  
+  2. Diagramas PlantUML (.puml)
+     - Formato fuente para diagramas UML
+  
+  3. Diagramas Renderizados (.png)
+     - Imágenes PNG de diagramas
+  
+  4. Archivos PDF (.pdf)
+     - Convertido desde Markdown
+  
+  5. Historial de Ejecución (history.json)
+     - Registro JSON de todos los análisis
+end note
+
+@enduml

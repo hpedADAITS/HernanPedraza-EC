@@ -1,0 +1,147 @@
+@startuml Arquitectura de Despliegue Docker
+
+!define CONTAINER_BG #C8E6C9
+!define HOST_BG #BBDEFB
+!define VOLUME_BG #FFF9C4
+!define NETWORK_BG #FFE0B2
+
+title Arquitectura de Despliegue Docker con Servicios y Volúmenes
+
+package "Máquina Anfitrión" <<folder>> #BBDEFB {
+    
+    package "LMStudio" {
+        component "Servidor API Compatible\ncon OpenAI\n(localhost:1234)" #C8E6C9
+        note right
+          - Modelo IMPLEMENTER
+          - Modelo EXPANDER
+          - Límite de tokens: 5000
+        end note
+    }
+    
+    package "Sistema de Archivos" {
+        folder "/directorio-proyecto/\n(usuario selecciona)" #FFF9C4
+        folder "/media/" #FFF9C4
+        folder "/diagrams/" #FFF9C4
+    }
+}
+
+package "Red Docker\n(docker-compose)" <<folder>> #FFE0B2 {
+    
+    package "Servicio Backend" #C8E6C9 {
+        component "Node.js 18" {
+            component "Servidor Express\n(puerto 3000)" 
+            component "Controladores"
+            component "Servicios"
+            component "Analizadores"
+            component "Utilidades"
+        }
+        
+        note right
+          Dockerfile:
+          - FROM node:18-alpine
+          - Instalar: plantuml, pandoc, git
+          - CMD: node server.js
+          
+          Variables de ambiente:
+          - LMS_MODEL_PATH=/models/llama-3-8b-instruct
+          - NODE_ENV=production
+          - PORT=3000
+        end note
+    }
+    
+    package "Servicio Frontend" #C8E6C9 {
+        component "Nginx" {
+            component "Aplicación React\n(estática compilada)\n(puerto 8978)"
+        }
+        
+        note right
+          Dockerfile:
+          - FROM nginx:alpine
+          - Construir aplicación React
+          - Servir dist/ compilado
+          - PUERTO: 8978
+        end note
+    }
+    
+    "Servidor Express\n(puerto 3000)" ..> "localhost:1234" : HTTP POST\n(llamadas IA)
+    "Aplicación React\n(estática compilada)\n(puerto 8978)" ..> "Servidor Express\n(puerto 3000)" : Solicitudes HTTP\n(endpoints API)
+}
+
+package "Volúmenes y Enlances" <<folder>> #BBDEFB {
+    
+    package "volumen-media" #FFF9C4 {
+        folder "Docs generados"
+        folder "Archivos PDF"
+        folder "Registros de ejecución"
+    }
+    
+    package "volumen-diagrams" #FFF9C4 {
+        folder "Código fuente PlantUML"
+        folder "Archivos PNG renderizados"
+    }
+    
+    "Servicio Backend" --> "volumen-media" : Leer/Escribir\n(/app/media)
+    "Servicio Backend" --> "volumen-diagrams" : Leer/Escribir\n(/app/diagrams)
+}
+
+note right of "Red Docker\n(docker-compose)"
+  Dependencias de Servicio:
+  - Frontend depende_de: Backend
+  - Backend depende_de: Nada (LMStudio externo)
+  
+  Comunicación de Servicio:
+  - Frontend → Backend: HTTP/REST
+  - Backend → LMStudio: HTTP/API OpenAI
+  
+  Mapeos de Puerto:
+  - 3000:3000 (Backend)
+  - 8978:8978 (Frontend)
+  - 1234:1234 (LMStudio - solo anfitrión)
+end note
+
+note bottom
+  Flujo de Datos en Tiempo de Ejecución:
+  
+  1. Navegador del Usuario
+     → http://localhost:8978
+     ↓
+  2. Aplicación React (puerto 8978)
+     → POST /api/analyze
+     ↓
+  3. Servidor Express (puerto 3000)
+     → POST /v1/chat/completions
+     ↓
+  4. LMStudio (puerto 1234)
+     → JSON de respuesta IA
+     ↓
+  5. Escribir .md, .puml, .png a volúmenes
+     ↓
+  6. Response {markdown, pdfUrl, diagrams}
+     → Navegador del Usuario (Resultados renderizados)
+end note
+
+note bottom
+  Pasos de Despliegue:
+  
+  1. Ejecutar: docker-compose up --build
+     - Construye imagen de backend
+     - Construye imagen de frontend
+     - Inicia ambos servicios
+     - Monta volúmenes
+  
+  2. Esperar inicio:
+     - Backend listo: puede conectarse a 3000
+     - Frontend listo: puede acceder a :8978
+  
+  3. Acceder aplicación:
+     - Abrir: http://localhost:8978
+     - Conecta a backend en :3000
+     - Backend comunica con LMStudio en :1234
+  
+  4. Artefactos de salida:
+     - Almacenado en volúmenes montados (/media, /diagrams)
+     - Persisten después del apagado de contenedor
+     - Accesible a ambos contenedores
+end note
+
+@enduml

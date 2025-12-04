@@ -1,0 +1,111 @@
+@startuml Diagrama de Secuencia: Interacción de Modelo IA
+
+title Secuencia de Interacción de Modelo IA: IMPLEMENTER y EXPANDER
+
+participant Frontend
+participant "Controlador\nBackend"
+participant "Servicio IA"
+participant "LMStudio\nIMPLEMENTER"
+participant "Validador\nde Esquema"
+participant "LMStudio\nEXPANDER"
+participant "Constructor\nMarkdown"
+participant "Vista de\nResultados Frontend"
+
+Frontend -> "Controlador\nBackend": POST /api/analyze (ruta del proyecto)
+activate "Controlador\nBackend"
+
+"Controlador\nBackend" -> "Servicio IA": orchestrateAnalysis()
+activate "Servicio IA"
+
+"Servicio IA" -> "LMStudio\nIMPLEMENTER": Prompt Tool-call\n(árbol de archivos + instrucciones)
+activate "LMStudio\nIMPLEMENTER"
+
+note right of "LMStudio\nIMPLEMENTER"
+  Entrada:
+  - Estructura de archivos
+  - Lista de clases
+  - Firmas de métodos
+  - Instrucciones para extraer estructura
+  - Tokens máx: 5000
+  - Tool: grep_java_methods
+  Salida Tool: JSON con clases, métodos
+end note
+
+"LMStudio\nIMPLEMENTER" --> "Servicio IA": Respuesta Tool call\n(JSON con tool_call_id)
+deactivate "LMStudio\nIMPLEMENTER"
+
+"Servicio IA" -> "Validador\nde Esquema": validateToolCall()
+activate "Validador\nde Esquema"
+
+note right of "Validador\nde Esquema"
+  Valida:
+  - tool_call_id existe
+  - Campo output presente
+  - Coincide con esquema esperado
+  - Todos los campos requeridos presentes
+end note
+
+alt Validación Exitosa
+  "Validador\nde Esquema" --> "Servicio IA": Válido ✓
+else Validación Fallida
+  "Validador\nde Esquema" --> "Servicio IA": Error (rechazar)
+  "Servicio IA" --> "Controlador\nBackend": Devuelve error
+end
+
+deactivate "Validador\nde Esquema"
+
+note right of "Servicio IA"
+  Resultados intermedios almacenados:
+  - clases: [User, Order]
+  - métodos con firmas
+  - estructura de paquete
+  - dependencias
+end note
+
+"Servicio IA" -> "LMStudio\nEXPANDER": Prompt de expansión de texto\n(resultados sin procesar + contexto)
+activate "LMStudio\nEXPANDER"
+
+note right of "LMStudio\nEXPANDER"
+  Entrada:
+  - Plantilla base markdown
+  - Datos de clase/método sin procesar
+  - Instrucciones para enriquecimiento
+  - Pistas de inferencia de comportamiento
+  - Tokens máx: 5000
+  
+  Salida:
+  - Descripciones enriquecidas
+  - Documentación de métodos
+  - Recomendaciones de uso
+end note
+
+"LMStudio\nEXPANDER" --> "Servicio IA": Markdown Enriquecido
+deactivate "LMStudio\nEXPANDER"
+
+"Servicio IA" -> "Constructor\nMarkdown": buildFinalDocumentation()
+activate "Constructor\nMarkdown"
+
+note right of "Constructor\nMarkdown"
+  Ensambla:
+  - Descripción general de paquete
+  - Desglose de clases
+  - Documentación de métodos
+  - Referencias de diagrama UML
+  - Árboles de herencia
+end note
+
+"Constructor\nMarkdown" --> "Servicio IA": Markdown Final + metadatos
+deactivate "Constructor\nMarkdown"
+
+"Servicio IA" --> "Controlador\nBackend": Resultados completos
+deactivate "Servicio IA"
+
+"Controlador\nBackend" -> Frontend: {markdown, pdfUrl, diagrams}
+deactivate "Controlador\nBackend"
+
+Frontend -> "Vista de\nResultados Frontend": Mostrar Markdown
+activate "Vista de\nResultados Frontend"
+"Vista de\nResultados Frontend" --> Frontend: Renderizar UI + Botones de descarga
+deactivate "Vista de\nResultados Frontend"
+
+@enduml

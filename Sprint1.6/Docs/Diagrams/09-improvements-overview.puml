@@ -1,0 +1,78 @@
+@startuml improvements-overview
+!theme plain
+
+title Mejoras Implementadas - Vista General
+
+package "Análisis y Estadísticas" {
+  component [Métricas en Tiempo Real]
+  component [Gestión de Tokens]
+  component [Rendimiento por Fase]
+}
+
+package "Búsqueda y Navegación" {
+  component [Filtrado Granular]
+  component [RAG Context Injection]
+  component [Índices Jerárquicos]
+}
+
+package "Insights de IA" {
+  component [Detección Patrones]
+  component [Análisis SOLID]
+  component [Recomendaciones]
+}
+
+package "Validación y Calidad" {
+  component [Schema Validation]
+  component [Error Handling]
+  component [Logging Completo]
+}
+
+package "Frontend UX" {
+  component [Diseño Responsive]
+  component [WCAG AA Compliance]
+  component [Error Boundaries]
+}
+
+package "Diagramas Avanzados" {
+  component [7 Tipos PlantUML]
+  component [Renderizado Paralelo]
+  component [Cacheo Inteligente]
+}
+
+package "Integración Herramientas" {
+  component [LMStudio SDK]
+  component [Pandoc Conversion]
+  component [Git Operations]
+}
+
+package "Privacidad y Seguridad" {
+  component [Offline-First]
+  component [Aislamiento Docker]
+  component [Limpieza Automática]
+}
+
+package "Configuración" {
+  component [Environment-Driven]
+  component [Validación al Inicio]
+  component [Defaults Sensatos]
+}
+
+package "Testing y Documentación" {
+  component [100% TypeScript]
+  component [JSDoc Comments]
+  component [Guides de Desarrollo]
+}
+
+"Métricas en Tiempo Real" --> "Gestión de Tokens"
+"Rendimiento por Fase" --> "Logging Completo"
+"Filtrado Granular" --> "RAG Context Injection"
+"Detección Patrones" --> "Recomendaciones"
+"Schema Validation" --> "Error Handling"
+"Diseño Responsive" --> "Error Boundaries"
+"7 Tipos PlantUML" --> "Cacheo Inteligente"
+"LMStudio SDK" --> "Pandoc Conversion"
+"Offline-First" --> "Aislamiento Docker"
+"Environment-Driven" --> "Validación al Inicio"
+"100% TypeScript" --> "JSDoc Comments"
+
+@enduml
