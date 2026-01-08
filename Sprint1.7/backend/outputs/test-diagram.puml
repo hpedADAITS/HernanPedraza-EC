@@ -1,0 +1,19 @@
+@startuml
+!define ABSTRACT abstract
+skinparam classBackgroundColor #FEFCE8
+skinparam classBorderColor #333333
+
+class UserService {
+  String name
+  List<User> users
+
+  void addUser(user: User)
+}
+
+interface UserRepository {
+  User findById(id: String)
+}
+
+UserService --|> BaseService
+UserService ..|> UserRepository
+@enduml

@@ -1,0 +1,9 @@
+{
+  "watch": ["index.js", "api", "services", "generators", "config"],
+  "ignore": ["outputs", "uploads", "node_modules", "*.log"],
+  "ext": "js",
+  "delay": 500,
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

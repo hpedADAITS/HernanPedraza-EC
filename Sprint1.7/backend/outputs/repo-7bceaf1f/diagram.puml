@@ -1,0 +1,374 @@
+@startuml
+!define ABSTRACT abstract
+skinparam classBackgroundColor #FEFCE8
+skinparam classBorderColor #333333
+
+class LoginController {
+  package Controller
+  DatabaseService databaseService
+  boolean success
+  return success
+  boolean success
+  return success
+
+  public LoginController()
+  boolean login(username: String, password: String)
+  boolean register(username: String, password: String, email: String)
+  String getUsername()
+  void createTask(name: String)
+  void launchMainView()
+  void launchAddTask()
+}
+
+class TasksController {
+  package Controller
+  TasksController instance
+  DatabaseService databaseService
+  MainView mainView
+  String username
+  List<Task> allTasks
+  List<Task> completedTasks
+  List<Task> backlogTasks
+  return instance
+  List<Task> filteredTasks
+  return filteredTasks
+  JPanel taskPanel
+  boolean success
+  return success
+  return username
+
+  private TasksController()
+  TasksController getInstance()
+  void setMainView(mainView: MainView)
+  void loadTasksFromDatabase()
+  List<Task> getTasks(completedOnly: boolean, backlogOnly: boolean)
+  void reloadTasksInMainView()
+  void deleteTask(taskId: int)
+  void CreateTask(name: String, type: String, recurrence_pattern: String)
+  void setTaskAsFinished(taskId: int)
+  boolean login(uUsername: String, uPassword: String)
+  String getUsernameFromService()
+}
+
+class Launch {
+  Preferences prefs
+  String SPLASH_SHOWN
+
+  void main(args: String[])
+  boolean isFirstLaunch()
+  void setSplashShown()
+}
+
+class AppState {
+  Preferences prefs
+  String SPLASH_SHOWN
+
+  void main(args: String[])
+  boolean isFirstLaunch()
+  void setSplashShown()
+}
+
+class Task {
+  package Model
+  int id
+  int userId
+  String name
+  String taskType
+  String dueDate
+  String recurrencePattern
+  boolean isCompleted
+  LocalDateTime createdAt
+  return id
+  return userId
+  return name
+  return taskType
+  return dueDate
+  return recurrencePattern
+  return isCompleted
+  return createdAt
+  return false
+  DateTimeFormatter formatter
+  LocalDateTime taskDueDate
+  return false
+
+  int getId()
+  int getUserId()
+  String getName()
+  String getTaskType()
+  String getDueDate()
+  String getRecurrencePattern()
+  boolean isCompleted()
+  LocalDateTime getCreatedAt()
+  boolean isBacklog()
+  String toString()
+  void setIsCompleted(isCompleted: boolean)
+}
+
+class User {
+  package Model
+  String username
+  String password
+  return username
+  return password
+
+  public User(username: String, password: String)
+  String getUsername()
+  String getPassword()
+  void setUsername(username: String)
+  void setPassword(password: String)
+}
+
+class DatabaseService {
+  package Service
+  Connection connection
+  String username
+  String password
+  Logger logger
+  return username
+  return password
+  String url
+  return connection
+  String dbName
+  return false
+  String query
+  Statement stmt
+  return false
+  return 0
+  String sql
+  Connection conn
+  return 0
+  return false
+  String sql
+  Connection conn
+  ResultSet rs
+  return true
+  return false
+  String checkSql
+  String insertSql
+  Connection conn
+  ResultSet rs
+  return false
+  int rowsInserted
+  return true
+  return false
+  List<Task> tasks
+  return tasks
+  PreparedStatement stmt
+  Task task
+  return tasks
+  int id
+  int userId
+  String name
+  String taskType
+  String dueDate
+  String recurrence
+  boolean completed
+  LocalDateTime createdAt
+  WHERE is_completed
+  WHERE is_completed
+  AND is_completed
+  Connection conn
+  String deleteQuery
+  Connection conn
+  int rowsAffected
+  throw e
+  String sql
+  Connection conn
+  to completed
+  String dbName
+  Path sqlFilePath
+  String sql
+  String trimmed
+  Statement stmt
+  return false
+
+  String getUsername()
+  String getPassword()
+  Connection connect()
+  boolean databaseExists()
+  int executeQuery(sql: String)
+  int updateTask(task: Task)
+  boolean login(username: String, password: String)
+  boolean register(username: String, password: String, email: String)
+  List<Task> getTasksByQuery(sql: String)
+  Task extractTaskFromResultSet(rs: ResultSet)
+  List<Task> getAllTasks()
+  List<Task> getCompletedTasks()
+  List<Task> getBacklogTasks()
+  void createTask(name: String, type: String, recurrence_pattern: String)
+  void deleteTaskById(taskId: int)
+  void updateTaskCompletionStatus(taskId: int, isCompleted: boolean)
+  void markTaskAsCompleted(taskId: int)
+  void initializeDatabaseIfMissing()
+  separately for(sql.split(";"): String statement :)
+  boolean databaseExists(conn: Connection, dbName: String)
+}
+
+class UIStyleManager {
+  package Utils
+  Color DARK_BG
+  Font font
+  return font
+  Graphics2D g2d
+
+  void applyDarkTheme()
+  Font loadFont(fontPath: String, size: float)
+  void applyRoundedFrame(frame: JFrame, arcWidth: int, arcHeight: int)
+  void componentResized(e: java.awt.event.ComponentEvent)
+  void qualityImageDraw(g: Graphics, c: Component, image: Image)
+}
+
+class AddTaskView {
+  package View
+  JComboBox<String> taskTypeCombo
+  JPanel schedulePanel
+  Font oswaldFont
+  Font font
+  JLabel imageLabel
+  Image scaledImage
+  JPanel imagePanel
+  JPanel formPanel
+  GridBagConstraints gbc
+  JLabel nameLabel
+  JTextField taskNameField
+  Image scaledTaskIcon
+  JLabel iconLabel
+  JPanel iconPanel
+  JPanel taskFieldPanel
+  JLabel typeLabel
+  Map<String, JCheckBox> checkBoxes
+  JLabel dayLabel
+  JCheckBox checkBox
+  JButton addButton
+  String name
+  String type
+  String recurrencePattern
+  InputMap inputMap
+  ActionMap actionMap
+  JSplitPane splitPane
+  AddTaskView view
+
+  public AddTaskView(taskPanel: JPanel)
+  new AbstractAction()
+  void actionPerformed(e: ActionEvent)
+  public AddTaskView()
+  void main(args: String[])
+}
+
+class LoginView {
+  package View
+  Font oswald
+  JFrame window
+  JLabel imageLabel
+  ImageIcon imageIcon
+  Image image
+  JPanel imagePanel
+  JPanel panel
+  GridBagConstraints gbc
+  JTextField usernameField
+  JPasswordField passwordField
+  JPanel buttonsPanel
+  JButton loginButton
+  JButton registerButton
+  String username
+  String password
+  LoginController controller
+  boolean success
+  String username
+  String password
+  String email
+  LoginController controller
+  boolean success
+  InputMap inputMap
+  ActionMap actionMap
+  JSplitPane splitPane
+
+  void main()
+  new AbstractAction()
+  void actionPerformed(e: ActionEvent)
+}
+
+class MainView {
+  package View
+  JLabel viewLabel
+  Font oswaldFont
+  TasksController tasksController
+  boolean showingCompleted
+  boolean showingBacklog
+  LoginController loginController
+  JPanel messagePanel
+  JPanel taskPanel
+  JScrollPane taskScrollPane
+  JButton addTaskButton
+  LoginController controller
+  JPanel buttonPanel
+  String username
+  JLabel welcomeLabel
+  JLabel dateLabel
+  JPanel messagePanel
+  GridBagConstraints gbc
+  return messagePanel
+  JPanel taskPanel
+  return taskPanel
+  JScrollPane scrollPane
+  return scrollPane
+  JScrollPane scrollPane
+  JPanel panel
+  JButton mainTasksButton
+  JButton completedTasksButton
+  JButton backlogTasksButton
+  return panel
+  List<Task> tasks
+  ImageIcon taskIcon
+  Image taskImage
+  JButton deleteButton
+  JLabel label
+  Timer timer
+  return taskBox
+  ImageIcon icon
+  Image scaled
+  JButton button
+  return button
+  ImageIcon deleteIcon
+  Image scaled
+  JButton button
+  return button
+
+  public MainView(loginController: LoginController)
+  void initialize()
+  void setupUIStyle()
+  void createMainWindow()
+  void setupLayout()
+  JPanel createMessagePanel()
+  void setCurrentViewLabel(viewName: String)
+  JPanel createTaskPanel()
+  JScrollPane createTaskScrollPane(taskPanel: JPanel)
+  JPanel getTaskPanel()
+  JPanel createIconButtonPanel(addTaskButton: JButton)
+  void reloadTaskPanel(taskPanel: JPanel)
+  JPanel createTaskBox(task: Task)
+  new JPanel(null: )
+  void paintComponent(g: Graphics)
+  Dimension getPreferredSize()
+  new MouseAdapter()
+  void mouseClicked(e: MouseEvent)
+  JButton createIconButton(iconFile: String, tooltipText: String)
+  String getFormattedDate()
+  JButton createDeleteButton(taskId: int)
+}
+
+class SplashScreen {
+  package View
+  int width
+  int height
+  ImageIcon splashIcon
+  JLabel splashLabel
+
+  public SplashScreen()
+  void showSplash(durationMillis: int)
+}
+
+AddTaskView --|> JFrame
+MainView --|> JFrame
+SplashScreen --|> JWindow
+@enduml
